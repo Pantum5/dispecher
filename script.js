@@ -43,11 +43,6 @@ function openOrderModal() {
         .reset();
 
 
-    document.getElementById(
-        "orderId"
-    ).value = "";
-
-
     document
         .getElementById("orderModal")
         .classList.add("show");
@@ -83,13 +78,6 @@ document
         function(event) {
 
             event.preventDefault();
-
-
-            const orderNumber =
-                document
-                    .getElementById("orderNumber")
-                    .value
-                    .trim();
 
 
             const createdTime =
@@ -151,8 +139,6 @@ document
                     id:
                         crypto.randomUUID(),
 
-                    orderNumber,
-
                     createdTime,
 
                     address,
@@ -165,7 +151,8 @@ document
 
                     note,
 
-                    createdAt:
+                    // Timer-ի իրական մեկնարկի պահը
+                    timerStartedAt:
                         now,
 
                     readyAt:
@@ -220,9 +207,6 @@ document
                 preparationTime;
 
 
-
-            order.orderNumber =
-                orderNumber;
 
             order.createdTime =
                 createdTime;
@@ -312,6 +296,10 @@ function finishEdit(
             Date.now();
 
 
+        order.timerStartedAt =
+            now;
+
+
         order.readyAt =
             now +
             newTime *
@@ -379,22 +367,6 @@ function editOrder(id) {
         .textContent =
         "Փոփոխել պատվերը";
 
-
-
-    document
-        .getElementById(
-            "orderId"
-        )
-        .value =
-        order.id;
-
-
-    document
-        .getElementById(
-            "orderNumber"
-        )
-        .value =
-        order.orderNumber;
 
 
     document
@@ -505,7 +477,7 @@ function deleteOrder(id) {
 
     const confirmed =
         confirm(
-            `Ջնջե՞լ պատվեր #${order.orderNumber}`
+            "Ջնջե՞լ այս պատվերը"
         );
 
 
@@ -718,23 +690,11 @@ function renderOrders() {
         orders.filter(
             order => {
 
-                return (
-
-                    String(
-                        order.orderNumber
-                    )
-                        .toLowerCase()
-                        .includes(search)
-
-                    ||
-
-                    String(
-                        order.address
-                    )
-                        .toLowerCase()
-                        .includes(search)
-
-                );
+                return String(
+                    order.address
+                )
+                    .toLowerCase()
+                    .includes(search);
 
             }
         );
@@ -918,17 +878,6 @@ function renderOrders() {
 
 
             row.innerHTML = `
-
-                <td>
-                    <strong>
-    ${
-        order.orderNumber
-            ? "#" + escapeHTML(order.orderNumber)
-            : "—"
-    }
-</strong>
-                </td>
-
 
                 <td>
                     ${escapeHTML(
