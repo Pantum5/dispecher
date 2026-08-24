@@ -15,7 +15,7 @@
 
     <div>
         <h1>📦 Պատվերների կառավարում</h1>
-        <p>Դիսպետչերի աշխատանքային համակարգ</p>
+        <p>Դիսպետչերի համակարգ</p>
     </div>
 
     <button class="add-btn" onclick="openOrderModal()">
@@ -36,7 +36,7 @@
             <input
                 type="text"
                 id="searchInput"
-                placeholder="🔎 Որոնել հասցե կամ աղբյուր..."
+                placeholder="🔎 Որոնել հասցե..."
                 oninput="renderOrders()"
             >
 
@@ -48,17 +48,20 @@
             <table>
 
                 <thead>
+
                     <tr>
-                        <th>Ժամ</th>
                         <th>Աղբյուր</th>
-                        <th>Հասցե</th>
+                        <th>Ստեղծման ժամ</th>
                         <th>Գումար</th>
+                        <th>Առաքման հասցե</th>
+                        <th>Կոորդինատներ</th>
                         <th>Պատրաստման ժամանակ</th>
                         <th>Մնացած ժամանակ</th>
                         <th>Map</th>
                         <th>Կարգավիճակ</th>
                         <th>Գործողություններ</th>
                     </tr>
+
                 </thead>
 
                 <tbody id="ordersTable"></tbody>
@@ -78,9 +81,9 @@
 
 
 
-<!-- =========================================
+<!-- =========================
      ՆՈՐ / ՓՈՓՈԽԵԼ ՊԱՏՎԵՐ
-========================================= -->
+========================= -->
 
 <div id="orderModal" class="modal">
 
@@ -88,9 +91,7 @@
 
         <div class="modal-header">
 
-            <h2 id="modalTitle">
-                Նոր պատվեր
-            </h2>
+            <h2 id="modalTitle">Նոր պատվեր</h2>
 
             <button
                 class="close-btn"
@@ -105,48 +106,31 @@
         <form id="orderForm">
 
 
-            <!-- COPY / PASTE -->
-
-            <label>
-
-                📋 Պատվերի տեքստ
-
-                <textarea
-                    id="rawText"
-                    class="raw-text"
-                    placeholder="Այստեղ տեղադրիր Yandex-ի, Murakami-ի կամ YerevanCity-ի ամբողջ copy-paste արած տեքստը..."
-                ></textarea>
-
-            </label>
-
-
-            <button
-                type="button"
-                class="parse-btn"
-                onclick="parseOrderText()"
-            >
-                🔍 Ճանաչել պատվերը
-            </button>
-
-
-            <div
-                id="parseMessage"
-                class="parse-message"
-            ></div>
-
-
             <!-- ԱՂԲՅՈՒՐ -->
 
             <label>
 
                 Աղբյուր
 
-                <input
-                    type="text"
-                    id="source"
-                    readonly
-                    placeholder="Ավտոմատ կճանաչվի"
-                >
+                <select id="source" required>
+
+                    <option value="">
+                        Ընտրել աղբյուրը
+                    </option>
+
+                    <option value="Yandex">
+                        Yandex
+                    </option>
+
+                    <option value="Murakami">
+                        Murakami
+                    </option>
+
+                    <option value="Yerevan City">
+                        Yerevan City
+                    </option>
+
+                </select>
 
             </label>
 
@@ -175,6 +159,7 @@
                 <input
                     type="number"
                     id="amount"
+                    placeholder="13800"
                     min="0"
                     required
                 >
@@ -190,8 +175,8 @@
 
                 <textarea
                     id="address"
+                    placeholder="Երևան, Սարյան 24Բ, բն. 61/2..."
                     required
-                    placeholder="Առաքման հասցե"
                 ></textarea>
 
             </label>
@@ -201,7 +186,7 @@
 
             <label>
 
-                📍 Կոորդինատներ
+                Կոորդինատներ
 
                 <input
                     type="text"
@@ -210,7 +195,7 @@
                 >
 
                 <small>
-                    Ձևաչափ՝ latitude, longitude
+                    Օրինակ՝ 40.18407, 44.50422
                 </small>
 
             </label>
@@ -218,73 +203,45 @@
 
             <!-- ՊԱՏՐԱՍՏՄԱՆ ԺԱՄԱՆԱԿ -->
 
-            <div class="preparation-box">
+            <label>
 
-                <div class="preparation-title">
-                    ⏱️ Պատրաստման ժամանակ
-                </div>
+                Պատրաստման ժամանակ
 
-
-                <div class="time-buttons">
-
-                    <button
-                        type="button"
-                        class="time-btn"
-                        data-time="10"
-                        onclick="selectPreparationTime(10)"
-                    >
-                        10 րոպե
-                    </button>
-
-                    <button
-                        type="button"
-                        class="time-btn"
-                        data-time="20"
-                        onclick="selectPreparationTime(20)"
-                    >
-                        20 րոպե
-                    </button>
-
-                    <button
-                        type="button"
-                        class="time-btn"
-                        data-time="30"
-                        onclick="selectPreparationTime(30)"
-                    >
-                        30 րոպե
-                    </button>
-
-                    <button
-                        type="button"
-                        class="time-btn"
-                        data-time="40"
-                        onclick="selectPreparationTime(40)"
-                    >
-                        40 րոպե
-                    </button>
-
-                    <button
-                        type="button"
-                        class="time-btn"
-                        data-time="50"
-                        onclick="selectPreparationTime(50)"
-                    >
-                        50 րոպե
-                    </button>
-
-                </div>
-
-
-                <input
-                    type="hidden"
+                <select
                     id="preparationTime"
                     required
                 >
 
-            </div>
+                    <option value="">
+                        Ընտրել
+                    </option>
+
+                    <option value="10">
+                        10 րոպե
+                    </option>
+
+                    <option value="20">
+                        20 րոպե
+                    </option>
+
+                    <option value="30">
+                        30 րոպե
+                    </option>
+
+                    <option value="40">
+                        40 րոպե
+                    </option>
+
+                    <option value="50">
+                        50 րոպե
+                    </option>
+
+                </select>
+
+            </label>
 
 
-            <!-- ԳՈՐԾՈՂՈՒԹՅՈՒՆ -->
+            <!-- ԳՈՐԾՈՂՈՒԹՅՈՒՆՆԵՐ -->
 
             <div class="modal-actions">
 
@@ -295,7 +252,6 @@
                 >
                     Չեղարկել
                 </button>
-
 
                 <button
                     type="submit"
@@ -314,9 +270,9 @@
 
 
 
-<!-- =========================================
-     TIMER RESET CONFIRM
-========================================= -->
+<!-- =========================
+     ԺԱՄԱՉԱՓԻ ՓՈՓՈԽՈՒԹՅՈՒՆ
+========================= -->
 
 <div id="confirmModal" class="modal">
 
