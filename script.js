@@ -62,7 +62,7 @@ function selectSource(source) {
 
 
 // ========================================
-// ԱՂԲՅՈՒՐԻ ԿՈՃԱԿՆԵՐԸ ՄԱՔՐԵԼ
+// ԱՂԲՅՈՒՐԻ ԸՆՏՐՈՒԹՅՈՒՆԸ ՄԱՔՐԵԼ
 // ========================================
 
 function clearSourceSelection() {
@@ -105,8 +105,6 @@ function openOrderModal() {
 
     clearSourceSelection();
 
-
-    // Ավտոմատ դնել ընթացիկ ժամը
 
     const now =
         new Date();
@@ -153,14 +151,13 @@ function closeOrderModal() {
         .getElementById("orderModal")
         .classList.remove("show");
 
-
     editingOrderId = null;
 
 }
 
 
 // ========================================
-// ԱՎԵԼԱՑՆԵԼ / ՓՈՓՈԽԵԼ ՊԱՏՎԵՐԸ
+// ԱՎԵԼԱՑՆԵԼ / ՓՈՓՈԽԵԼ
 // ========================================
 
 document
@@ -345,7 +342,7 @@ document
 
 
             // ========================================
-            // ԵԹԵ ՓՈԽՎԵԼ Է ՊԱՏՐԱՍՏՄԱՆ ԺԱՄԱՆԱԿԸ
+            // ՓՈԽՎԵԼ Է ՊԱՏՐԱՍՏՄԱՆ ԺԱՄԱՆԱԿԸ
             // ========================================
 
             if (
@@ -386,7 +383,7 @@ document
 
 
 // ========================================
-// ԺԱՄԱՉԱՓԻ ՓՈՓՈԽՄԱՆ ՀԱՍՏԱՏՈՒՄ
+// ԺԱՄԱՉԱՓԻ ՀԱՍՏԱՏՈՒՄ
 // ========================================
 
 function finishEdit(
@@ -454,7 +451,7 @@ function finishEdit(
 
 
 // ========================================
-// ԽՄԲԱԳՐԵԼ ՊԱՏՎԵՐԸ
+// ԽՄԲԱԳՐԵԼ
 // ========================================
 
 function editOrder(id) {
@@ -481,8 +478,6 @@ function editOrder(id) {
         .textContent =
         "Փոփոխել պատվերը";
 
-
-    // ԱՂԲՅՈՒՐ
 
     if (order.source) {
 
@@ -557,7 +552,85 @@ function editOrder(id) {
 
 
 // ========================================
-// ԱՎԱՐՏԵԼ ՊԱՏՎԵՐԸ
+// ՎԵՐԵՎ ՏԵՂԱՓՈԽԵԼ
+// ========================================
+
+function moveOrderUp(id) {
+
+    const index =
+        orders.findIndex(
+            order =>
+                order.id === id
+        );
+
+
+    if (index <= 0)
+        return;
+
+
+    const temp =
+        orders[index - 1];
+
+
+    orders[index - 1] =
+        orders[index];
+
+
+    orders[index] =
+        temp;
+
+
+    saveOrders();
+
+    renderOrders();
+
+}
+
+
+// ========================================
+// ՆԵՐՔԵՎ ՏԵՂԱՓՈԽԵԼ
+// ========================================
+
+function moveOrderDown(id) {
+
+    const index =
+        orders.findIndex(
+            order =>
+                order.id === id
+        );
+
+
+    if (
+        index === -1 ||
+        index >= orders.length - 1
+    ) {
+
+        return;
+
+    }
+
+
+    const temp =
+        orders[index + 1];
+
+
+    orders[index + 1] =
+        orders[index];
+
+
+    orders[index] =
+        temp;
+
+
+    saveOrders();
+
+    renderOrders();
+
+}
+
+
+// ========================================
+// ԱՎԱՐՏԵԼ
 // ========================================
 
 function completeOrder(id) {
@@ -585,7 +658,7 @@ function completeOrder(id) {
 
 
 // ========================================
-// ՋՆՋԵԼ ՊԱՏՎԵՐԸ
+// ՋՆՋԵԼ
 // ========================================
 
 function deleteOrder(id) {
@@ -712,7 +785,7 @@ function formatTime(
 
 
 // ========================================
-// YANDEX MAP LINK
+// YANDEX MAP
 // ========================================
 
 function getYandexMapLink(
@@ -788,7 +861,7 @@ function getYandexMapLink(
 
 
 // ========================================
-// ԱՂԲՅՈՒՐԻ ՑՈՒՑԱԴՐՈՒՄ
+// ԱՂԲՅՈՒՐ
 // ========================================
 
 function getSourceHTML(
@@ -802,8 +875,7 @@ function getSourceHTML(
     }
 
 
-    let sourceClass =
-        "";
+    let sourceClass = "";
 
 
     if (
@@ -1066,13 +1138,30 @@ function renderOrders() {
 
 
             // ========================================
-            // ՍՏԵՂԾԵԼ ROW
+            // ROW
             // ========================================
 
             const row =
                 document.createElement(
                     "tr"
                 );
+
+
+            const index =
+                orders.findIndex(
+                    item =>
+                        item.id ===
+                        order.id
+                );
+
+
+            const canMoveUp =
+                index > 0;
+
+
+            const canMoveDown =
+                index <
+                orders.length - 1;
 
 
             row.innerHTML = `
@@ -1142,6 +1231,47 @@ function renderOrders() {
 
                     <div class="actions">
 
+
+                        <!-- ՎԵՐԵՎ -->
+
+                        <button
+                            class="
+                                action-btn
+                                move-btn
+                            "
+                            onclick="
+                                moveOrderUp(
+                                    '${order.id}'
+                                )
+                            "
+                            ${canMoveUp ? "" : "disabled"}
+                            title="Տեղափոխել վերև"
+                        >
+                            ⬆️
+                        </button>
+
+
+                        <!-- ՆԵՐՔԵՎ -->
+
+                        <button
+                            class="
+                                action-btn
+                                move-btn
+                            "
+                            onclick="
+                                moveOrderDown(
+                                    '${order.id}'
+                                )
+                            "
+                            ${canMoveDown ? "" : "disabled"}
+                            title="Տեղափոխել ներքև"
+                        >
+                            ⬇️
+                        </button>
+
+
+                        <!-- ԽՄԲԱԳՐԵԼ -->
+
                         <button
                             class="
                                 action-btn
@@ -1157,6 +1287,8 @@ function renderOrders() {
                             ✏️
                         </button>
 
+
+                        <!-- ԱՎԱՐՏԵԼ -->
 
                         ${
                             order.status !==
@@ -1187,6 +1319,8 @@ function renderOrders() {
                         }
 
 
+                        <!-- ՋՆՋԵԼ -->
+
                         <button
                             class="
                                 action-btn
@@ -1201,6 +1335,7 @@ function renderOrders() {
                         >
                             🗑️
                         </button>
+
 
                     </div>
 
