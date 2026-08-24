@@ -1,93 +1,31 @@
 let orders =
     JSON.parse(
-        localStorage.getItem("orders")
+        localStorage.getItem("dispatcherOrders")
     ) || [];
+
 
 let editingOrderId = null;
 
 let pendingEdit = null;
 
 
-// ========================================
-// ՊԱՀՊԱՆԵԼ ՏՎՅԱԼՆԵՐԸ
-// ========================================
+/* ========================================
+   SAVE
+======================================== */
 
 function saveOrders() {
 
     localStorage.setItem(
-        "orders",
+        "dispatcherOrders",
         JSON.stringify(orders)
     );
 
 }
 
 
-// ========================================
-// ԱՂԲՅՈՒՐ ԸՆՏՐԵԼ
-// ========================================
-
-function selectSource(source) {
-
-    document.getElementById(
-        "orderSource"
-    ).value = source;
-
-
-    document
-        .querySelectorAll(".source-btn")
-        .forEach(button => {
-
-            button.classList.remove(
-                "selected"
-            );
-
-        });
-
-
-    const selectedButton =
-        document.querySelector(
-            `.source-btn[data-source="${source}"]`
-        );
-
-
-    if (selectedButton) {
-
-        selectedButton.classList.add(
-            "selected"
-        );
-
-    }
-
-}
-
-
-// ========================================
-// ԱՂԲՅՈՒՐԻ ԸՆՏՐՈՒԹՅՈՒՆԸ ՄԱՔՐԵԼ
-// ========================================
-
-function clearSourceSelection() {
-
-    document.getElementById(
-        "orderSource"
-    ).value = "";
-
-
-    document
-        .querySelectorAll(".source-btn")
-        .forEach(button => {
-
-            button.classList.remove(
-                "selected"
-            );
-
-        });
-
-}
-
-
-// ========================================
-// ՆՈՐ ՊԱՏՎԵՐ
-// ========================================
+/* ========================================
+   OPEN NEW ORDER
+======================================== */
 
 function openOrderModal() {
 
@@ -103,35 +41,17 @@ function openOrderModal() {
         .reset();
 
 
-    clearSourceSelection();
-
-
-    const now =
-        new Date();
-
-
-    const hours =
-        String(
-            now.getHours()
-        ).padStart(
-            2,
-            "0"
-        );
-
-
-    const minutes =
-        String(
-            now.getMinutes()
-        ).padStart(
-            2,
-            "0"
-        );
+    document.getElementById(
+        "parseMessage"
+    ).textContent = "";
 
 
     document.getElementById(
-        "createdTime"
-    ).value =
-        `${hours}:${minutes}`;
+        "parseMessage"
+    ).className = "parse-message";
+
+
+    clearPreparationSelection();
 
 
     document
@@ -141,9 +61,9 @@ function openOrderModal() {
 }
 
 
-// ========================================
-// ՓԱԿԵԼ ՊԱՏՈՒՀԱՆԸ
-// ========================================
+/* ========================================
+   CLOSE MODAL
+======================================== */
 
 function closeOrderModal() {
 
@@ -156,9 +76,853 @@ function closeOrderModal() {
 }
 
 
-// ========================================
-// ԱՎԵԼԱՑՆԵԼ / ՓՈՓՈԽԵԼ
-// ========================================
+/* ========================================
+   PREPARATION TIME
+======================================== */
+
+function selectPreparationTime(minutes) {
+
+    document.getElementById(
+        "preparationTime"
+    ).value = minutes;
+
+
+    document
+        .querySelectorAll(".time-btn")
+        .forEach(button => {
+
+            button.classList.remove(
+                "selected"
+            );
+
+        });
+
+
+    const selectedButton =
+        document.querySelector(
+            `.time-btn[data-time="${minutes}"]`
+        );
+
+
+    if (selectedButton) {
+
+        selectedButton.classList.add(
+            "selected"
+        );
+
+    }
+
+}
+
+
+function clearPreparationSelection() {
+
+    document.getElementById(
+        "preparationTime"
+    ).value = "";
+
+
+    document
+        .querySelectorAll(".time-btn")
+        .forEach(button => {
+
+            button.classList.remove(
+                "selected"
+            );
+
+        });
+
+}
+
+
+/* ========================================
+   PARSER - MAIN
+======================================== */
+
+function parseOrderText() {
+
+    const rawText =
+        document
+            .getElementById("rawText")
+            .value
+            .trim();
+
+
+    if (!rawText) {
+
+        showParseMessage(
+            "Տեղադրիր պատվերի ամբողջ տեքստը։",
+            true
+        );
+
+        return;
+
+    }
+
+
+    let result = null;
+
+
+    /*
+        ԱՎՏՈՄԱՏ ՃԱՆԱՉՈՒՄ
+    */
+
+    if (isYandexOrder(rawText)) {
+
+        result =
+            parseYandexOrder(rawText);
+
+    }
+
+    else if (isMurakamiOrder(rawText)) {
+
+        result =
+            parseMurakamiOrder(rawText);
+
+    }
+
+    else if (isYerevanCityOrder(rawText)) {
+
+        result =
+            parseYerevanCityOrder(rawText);
+
+    }
+
+
+    if (!result) {
+
+        showParseMessage(
+            "Չհաջողվեց ճանաչել պատվերի աղբյուրը կամ անհրաժեշտ տվյալները։",
+            true
+        );
+
+        return;
+
+    }
+
+
+    fillParsedData(result);
+
+
+    showParseMessage(
+        `${result.source} պատվերը ճանաչվեց։`,
+        false
+    );
+
+}
+
+
+/* ========================================
+   SOURCE DETECTION
+======================================== */
+
+function isYandexOrder(text) {
+
+    return (
+        text.includes("РАБОТА С ЗАКАЗАМИ") ||
+        text.includes("УПРАВЛЕНИЕ РЕСТОРАНАМИ") ||
+        text.includes("Адрес доставки") &&
+        text.includes("Доставка ресторана")
+    );
+
+}
+
+
+function isMurakamiOrder(text) {
+
+    return (
+        text.includes("api.murakamicity.com") ||
+        text.includes("Murakami City") &&
+        text.includes("Processing") &&
+        text.includes("Fulfillment")
+    );
+
+}
+
+
+function isYerevanCityOrder(text) {
+
+    return (
+        text.includes("erp-admin.innodream.com") ||
+        text.includes("Order Information") &&
+        text.includes("Ստեղծած ամսաթիվ") &&
+        text.includes("Առաքվող")
+    );
+
+}
+
+
+/* ========================================
+   YANDEX PARSER
+======================================== */
+
+function parseYandexOrder(text) {
+
+    let createdTime = "";
+
+
+    /*
+        Օրինակ՝
+
+        Создан в 23:32 24 авг.
+    */
+
+    const createdMatch =
+        text.match(
+            /Создан\s+в\s+(\d{1,2}:\d{2})/i
+        );
+
+
+    if (createdMatch) {
+
+        createdTime =
+            createdMatch[1];
+
+    }
+
+
+    /*
+        Ընդհանուր գումար
+
+        Նախընտրում ենք Итого:
+    */
+
+    let amount = 0;
+
+
+    const totalMatch =
+        text.match(
+            /Итого:\s*[\n\r| ]*\**([\d\s\u00A0]+)\s*֏/i
+        );
+
+
+    if (totalMatch) {
+
+        amount =
+            parseMoney(
+                totalMatch[1]
+            );
+
+    }
+
+
+    /*
+        Եթե Итого-ն չգտավ,
+        վերցնում ենք սկզբի գումարը
+    */
+
+    if (!amount) {
+
+        const fallbackAmount =
+            text.match(
+                /(?:№[^\n]*\n)?([\d\s\u00A0]+)\s*֏\s*[・·]\s*\d+\s*блюд/i
+            );
+
+
+        if (fallbackAmount) {
+
+            amount =
+                parseMoney(
+                    fallbackAmount[1]
+                );
+
+        }
+
+    }
+
+
+    /*
+        Հասցե
+
+        Yandex-ի copy-paste-ում
+        հասցեն գտնվում է Адрес доставки-ից հետո։
+    */
+
+    let address = "";
+
+
+    const addressMatch =
+        text.match(
+            /Адрес доставки\s*\n+\s*(?:\[)?([^\n\]]+?)(?:\]\([^)]+\))?\s*\n/i
+        );
+
+
+    if (addressMatch) {
+
+        address =
+            cleanAddress(
+                addressMatch[1]
+            );
+
+    }
+
+
+    /*
+        Կոորդինատներ
+
+        URL-ում լինում է.
+
+        whatshere[point]=44.50422,40.18407
+
+        կամ
+
+        pt=44.50422,40.18407
+    */
+
+    let coordinates =
+        extractCoordinatesFromText(
+            text
+        );
+
+
+    return {
+
+        source:
+            "Yandex",
+
+        createdTime,
+
+        amount,
+
+        address,
+
+        coordinates
+
+    };
+
+}
+
+
+/* ========================================
+   MURAKAMI PARSER
+======================================== */
+
+function parseMurakamiOrder(text) {
+
+    let createdTime = "";
+
+
+    /*
+        AcceptedAug 24, 2026 23:07
+
+        կամ
+
+        Accepted
+        Aug 24, 2026 23:07
+    */
+
+    const acceptedMatch =
+        text.match(
+            /Accepted\s*(?:Aug|Jan|Feb|Mar|Apr|May|Jun|Jul|Sep|Oct|Nov|Dec)?\s*\d{1,2},?\s*\d{4}\s+(\d{1,2}:\d{2})/i
+        );
+
+
+    if (acceptedMatch) {
+
+        createdTime =
+            acceptedMatch[1];
+
+    }
+
+
+    /*
+        Երկրորդ fallback.
+
+        Status history
+
+        Accepted Aug 24, 2026 23:07
+    */
+
+    if (!createdTime) {
+
+        const fallback =
+            text.match(
+                /Accepted[\s\S]{0,50}?(\d{1,2}:\d{2})/i
+            );
+
+
+        if (fallback) {
+
+            createdTime =
+                fallback[1];
+
+        }
+
+    }
+
+
+    /*
+        Total15,600 AMD
+    */
+
+    let amount = 0;
+
+
+    const totalMatch =
+        text.match(
+            /Total\s*([\d\s,\.]+)\s*AMD/i
+        );
+
+
+    if (totalMatch) {
+
+        amount =
+            parseMoney(
+                totalMatch[1]
+            );
+
+    }
+
+
+    /*
+        Address
+
+        AddressԵրևան...
+    */
+
+    let address = "";
+
+
+    const addressMatch =
+        text.match(
+            /Address\s+(.+?)(?=\s+Entrance|\s+Floor|\s+Apartment|\s+Phone)/i
+        );
+
+
+    if (addressMatch) {
+
+        address =
+            cleanAddress(
+                addressMatch[1]
+            );
+
+    }
+
+
+    /*
+        Coordinates
+
+        Yandex Map URL.
+
+        pt=44.452579313869,40.199989784301
+
+        Կարևոր է՝ URL-ում առաջինը longitude է,
+        երկրորդը latitude։
+
+        Ծրագրում պահում ենք latitude, longitude։
+    */
+
+    let coordinates =
+        extractCoordinatesFromText(
+            text
+        );
+
+
+    return {
+
+        source:
+            "Murakami",
+
+        createdTime,
+
+        amount,
+
+        address,
+
+        coordinates
+
+    };
+
+}
+
+
+/* ========================================
+   YEREVAN CITY PARSER
+======================================== */
+
+function parseYerevanCityOrder(text) {
+
+    let createdTime = "";
+
+
+    /*
+        Ստեղծած ամսաթիվ :
+
+        24 Aug 2026 20:54
+    */
+
+    const createdMatch =
+        text.match(
+            /Ստեղծած\s+ամսաթիվ\s*:?\s*\n?\s*\d{1,2}\s+\w+\s+\d{4}\s+(\d{1,2}:\d{2})/i
+        );
+
+
+    if (createdMatch) {
+
+        createdTime =
+            createdMatch[1];
+
+    }
+
+
+    /*
+        Գումար
+
+        Ընդհանուր:
+
+        34 500֏
+    */
+
+    let amount = 0;
+
+
+    const totalMatch =
+        text.match(
+            /Ընդհանուր\s*:?\s*\n?\s*([\d\s\u00A0]+)\s*֏/i
+        );
+
+
+    if (totalMatch) {
+
+        amount =
+            parseMoney(
+                totalMatch[1]
+            );
+
+    }
+
+
+    /*
+        Առաքվող
+
+        վերցնում ենք մինչև Ստեղծած ամսաթիվ
+    */
+
+    let address = "";
+
+
+    const addressMatch =
+        text.match(
+            /Առաքվող\s*:?\s*\n?\s*(.+?)(?=\s+Ստեղծած\s+ամսաթիվ)/is
+        );
+
+
+    if (addressMatch) {
+
+        address =
+            cleanAddress(
+                addressMatch[1]
+            );
+
+    }
+
+
+    /*
+        Այս copy-paste կառուցվածքում
+        կոորդինատներ չկան։
+    */
+
+    let coordinates =
+        extractCoordinatesFromText(
+            text
+        );
+
+
+    return {
+
+        source:
+            "YerevanCity",
+
+        createdTime,
+
+        amount,
+
+        address,
+
+        coordinates
+
+    };
+
+}
+
+
+/* ========================================
+   COORDINATE EXTRACTION
+======================================== */
+
+function extractCoordinatesFromText(text) {
+
+    /*
+        Yandex:
+
+        whatshere[point]=44.50422,40.18407
+
+        Murakami:
+
+        pt=44.452579313869,40.199989784301
+
+        Navigator:
+
+        lat_to=40.199989784301&lon_to=44.452579313869
+    */
+
+
+    let match =
+        text.match(
+            /(?:whatshere(?:%5B|\[)point(?:%5D|\])|pt)[=](-?\d+(?:\.\d+)?)[,%2C]+(-?\d+(?:\.\d+)?)/i
+        );
+
+
+    if (match) {
+
+        const longitude =
+            Number(match[1]);
+
+        const latitude =
+            Number(match[2]);
+
+
+        if (
+            isValidCoordinate(
+                latitude,
+                longitude
+            )
+        ) {
+
+            return (
+                latitude.toFixed(
+                    6
+                )
+                +
+                ", "
+                +
+                longitude.toFixed(
+                    6
+                )
+            );
+
+        }
+
+    }
+
+
+    /*
+        Murakami Navigator fallback
+    */
+
+    const navigatorMatch =
+        text.match(
+            /lat_to=(-?\d+(?:\.\d+)?).*?lon_to=(-?\d+(?:\.\d+)?)/i
+        );
+
+
+    if (navigatorMatch) {
+
+        const latitude =
+            Number(
+                navigatorMatch[1]
+            );
+
+        const longitude =
+            Number(
+                navigatorMatch[2]
+            );
+
+
+        if (
+            isValidCoordinate(
+                latitude,
+                longitude
+            )
+        ) {
+
+            return (
+                latitude.toFixed(
+                    6
+                )
+                +
+                ", "
+                +
+                longitude.toFixed(
+                    6
+                )
+            );
+
+        }
+
+    }
+
+
+    return "";
+
+}
+
+
+/* ========================================
+   VALID COORDINATES
+======================================== */
+
+function isValidCoordinate(
+    latitude,
+    longitude
+) {
+
+    return (
+        Number.isFinite(latitude) &&
+        Number.isFinite(longitude) &&
+        latitude >= -90 &&
+        latitude <= 90 &&
+        longitude >= -180 &&
+        longitude <= 180
+    );
+
+}
+
+
+/* ========================================
+   FILL PARSED DATA
+======================================== */
+
+function fillParsedData(data) {
+
+    document.getElementById(
+        "source"
+    ).value =
+        data.source || "";
+
+
+    document.getElementById(
+        "createdTime"
+    ).value =
+        data.createdTime || "";
+
+
+    document.getElementById(
+        "amount"
+    ).value =
+        data.amount || "";
+
+
+    document.getElementById(
+        "address"
+    ).value =
+        data.address || "";
+
+
+    document.getElementById(
+        "coordinates"
+    ).value =
+        data.coordinates || "";
+
+}
+
+
+/* ========================================
+   MESSAGE
+======================================== */
+
+function showParseMessage(
+    message,
+    error
+) {
+
+    const element =
+        document.getElementById(
+            "parseMessage"
+        );
+
+
+    element.textContent =
+        message;
+
+
+    element.className =
+        error
+            ? "parse-message error"
+            : "parse-message success";
+
+}
+
+
+/* ========================================
+   MONEY
+======================================== */
+
+function parseMoney(value) {
+
+    if (!value)
+        return 0;
+
+
+    const normalized =
+        String(value)
+            .replaceAll(
+                "\u00A0",
+                ""
+            )
+            .replaceAll(
+                " ",
+                ""
+            )
+            .replaceAll(
+                ",",
+                ""
+            )
+            .replaceAll(
+                "֏",
+                ""
+            )
+            .replaceAll(
+                "AMD",
+                ""
+            );
+
+
+    const number =
+        Number(
+            normalized
+        );
+
+
+    return Number.isFinite(
+        number
+    )
+        ? number
+        : 0;
+
+}
+
+
+/* ========================================
+   ADDRESS CLEAN
+======================================== */
+
+function cleanAddress(value) {
+
+    if (!value)
+        return "";
+
+
+    return String(value)
+
+        .replace(
+            /^\[|\]$/g,
+            ""
+        )
+
+        .replace(
+            /\s+/g,
+            " "
+        )
+
+        .trim();
+
+}
+
+
+/* ========================================
+   FORM SUBMIT
+======================================== */
 
 document
     .getElementById("orderForm")
@@ -171,34 +935,15 @@ document
 
             const source =
                 document
-                    .getElementById(
-                        "orderSource"
-                    )
-                    .value;
-
-
-            if (!source) {
-
-                alert(
-                    "Խնդրում ենք ընտրել պատվերի աղբյուրը։"
-                );
-
-                return;
-
-            }
+                    .getElementById("source")
+                    .value
+                    .trim();
 
 
             const createdTime =
                 document
                     .getElementById("createdTime")
                     .value;
-
-
-            const address =
-                document
-                    .getElementById("address")
-                    .value
-                    .trim();
 
 
             const amount =
@@ -209,12 +954,11 @@ document
                 );
 
 
-            const preparationTime =
-                Number(
-                    document
-                        .getElementById("preparationTime")
-                        .value
-                );
+            const address =
+                document
+                    .getElementById("address")
+                    .value
+                    .trim();
 
 
             const coordinates =
@@ -224,16 +968,41 @@ document
                     .trim();
 
 
-            const note =
-                document
-                    .getElementById("note")
-                    .value
-                    .trim();
+            const preparationTime =
+                Number(
+                    document
+                        .getElementById(
+                            "preparationTime"
+                        )
+                        .value
+                );
 
 
-            // ========================================
-            // ՆՈՐ ՊԱՏՎԵՐ
-            // ========================================
+            if (!source) {
+
+                alert(
+                    "Սկզբում ճանաչիր պատվերը։"
+                );
+
+                return;
+
+            }
+
+
+            if (!preparationTime) {
+
+                alert(
+                    "Ընտրիր պատրաստման ժամանակը։"
+                );
+
+                return;
+
+            }
+
+
+            /*
+                ՆՈՐ ՊԱՏՎԵՐ
+            */
 
             if (!editingOrderId) {
 
@@ -250,15 +1019,13 @@ document
 
                     createdTime,
 
-                    address,
-
                     amount,
 
-                    preparationTime,
+                    address,
 
                     coordinates,
 
-                    note,
+                    preparationTime,
 
                     timerStartedAt:
                         now,
@@ -287,17 +1054,18 @@ document
                 renderOrders();
 
                 return;
+
             }
 
 
-            // ========================================
-            // ԳՏՆԵԼ ՊԱՏՎԵՐԸ
-            // ========================================
+            /*
+                ԽՄԲԱԳՐՈՒՄ
+            */
 
             const order =
                 orders.find(
-                    o =>
-                        o.id ===
+                    item =>
+                        item.id ===
                         editingOrderId
                 );
 
@@ -315,35 +1083,24 @@ document
                 preparationTime;
 
 
-            // ========================================
-            // ԹԱՐՄԱՑՆԵԼ ՏՎՅԱԼՆԵՐԸ
-            // ========================================
-
             order.source =
                 source;
 
             order.createdTime =
                 createdTime;
 
-            order.address =
-                address;
-
             order.amount =
                 amount;
 
-            order.preparationTime =
-                preparationTime;
+            order.address =
+                address;
 
             order.coordinates =
                 coordinates;
 
-            order.note =
-                note;
+            order.preparationTime =
+                preparationTime;
 
-
-            // ========================================
-            // ՓՈԽՎԵԼ Է ՊԱՏՐԱՍՏՄԱՆ ԺԱՄԱՆԱԿԸ
-            // ========================================
 
             if (
                 changedPreparationTime
@@ -369,6 +1126,7 @@ document
 
 
                 return;
+
             }
 
 
@@ -382,9 +1140,9 @@ document
     );
 
 
-// ========================================
-// ԺԱՄԱՉԱՓԻ ՀԱՍՏԱՏՈՒՄ
-// ========================================
+/* ========================================
+   FINISH EDIT
+======================================== */
 
 function finishEdit(
     restartTimer
@@ -438,28 +1196,27 @@ function finishEdit(
         );
 
 
-    closeOrderModal();
-
-
     pendingEdit =
         null;
 
+
+    closeOrderModal();
 
     renderOrders();
 
 }
 
 
-// ========================================
-// ԽՄԲԱԳՐԵԼ
-// ========================================
+/* ========================================
+   EDIT ORDER
+======================================== */
 
 function editOrder(id) {
 
     const order =
         orders.find(
-            o =>
-                o.id === id
+            item =>
+                item.id === id
         );
 
 
@@ -471,73 +1228,50 @@ function editOrder(id) {
         id;
 
 
-    document
-        .getElementById(
-            "modalTitle"
-        )
-        .textContent =
+    document.getElementById(
+        "modalTitle"
+    ).textContent =
         "Փոփոխել պատվերը";
 
 
-    if (order.source) {
-
-        selectSource(
-            order.source
-        );
-
-    } else {
-
-        clearSourceSelection();
-
-    }
+    document.getElementById(
+        "rawText"
+    ).value = "";
 
 
-    document
-        .getElementById(
-            "createdTime"
-        )
-        .value =
+    document.getElementById(
+        "source"
+    ).value =
+        order.source || "";
+
+
+    document.getElementById(
+        "createdTime"
+    ).value =
         order.createdTime || "";
 
 
-    document
-        .getElementById(
-            "address"
-        )
-        .value =
-        order.address || "";
-
-
-    document
-        .getElementById(
-            "amount"
-        )
-        .value =
+    document.getElementById(
+        "amount"
+    ).value =
         order.amount || "";
 
 
-    document
-        .getElementById(
-            "preparationTime"
-        )
-        .value =
-        order.preparationTime || "";
+    document.getElementById(
+        "address"
+    ).value =
+        order.address || "";
 
 
-    document
-        .getElementById(
-            "coordinates"
-        )
-        .value =
+    document.getElementById(
+        "coordinates"
+    ).value =
         order.coordinates || "";
 
 
-    document
-        .getElementById(
-            "note"
-        )
-        .value =
-        order.note || "";
+    selectPreparationTime(
+        order.preparationTime
+    );
 
 
     document
@@ -551,94 +1285,16 @@ function editOrder(id) {
 }
 
 
-// ========================================
-// ՎԵՐԵՎ ՏԵՂԱՓՈԽԵԼ
-// ========================================
-
-function moveOrderUp(id) {
-
-    const index =
-        orders.findIndex(
-            order =>
-                order.id === id
-        );
-
-
-    if (index <= 0)
-        return;
-
-
-    const temp =
-        orders[index - 1];
-
-
-    orders[index - 1] =
-        orders[index];
-
-
-    orders[index] =
-        temp;
-
-
-    saveOrders();
-
-    renderOrders();
-
-}
-
-
-// ========================================
-// ՆԵՐՔԵՎ ՏԵՂԱՓՈԽԵԼ
-// ========================================
-
-function moveOrderDown(id) {
-
-    const index =
-        orders.findIndex(
-            order =>
-                order.id === id
-        );
-
-
-    if (
-        index === -1 ||
-        index >= orders.length - 1
-    ) {
-
-        return;
-
-    }
-
-
-    const temp =
-        orders[index + 1];
-
-
-    orders[index + 1] =
-        orders[index];
-
-
-    orders[index] =
-        temp;
-
-
-    saveOrders();
-
-    renderOrders();
-
-}
-
-
-// ========================================
-// ԱՎԱՐՏԵԼ
-// ========================================
+/* ========================================
+   COMPLETE
+======================================== */
 
 function completeOrder(id) {
 
     const order =
         orders.find(
-            o =>
-                o.id === id
+            item =>
+                item.id === id
         );
 
 
@@ -657,26 +1313,15 @@ function completeOrder(id) {
 }
 
 
-// ========================================
-// ՋՆՋԵԼ
-// ========================================
+/* ========================================
+   DELETE
+======================================== */
 
 function deleteOrder(id) {
 
-    const order =
-        orders.find(
-            o =>
-                o.id === id
-        );
-
-
-    if (!order)
-        return;
-
-
     const confirmed =
         confirm(
-            "Ջնջե՞լ այս պատվերը"
+            "Ջնջե՞լ այս պատվերը։"
         );
 
 
@@ -686,8 +1331,8 @@ function deleteOrder(id) {
 
     orders =
         orders.filter(
-            o =>
-                o.id !== id
+            item =>
+                item.id !== id
         );
 
 
@@ -698,9 +1343,62 @@ function deleteOrder(id) {
 }
 
 
-// ========================================
-// ՄՆԱՑԱԾ ԺԱՄԱՆԱԿ
-// ========================================
+/* ========================================
+   MOVE ORDER
+======================================== */
+
+function moveOrder(
+    id,
+    direction
+) {
+
+    const index =
+        orders.findIndex(
+            order =>
+                order.id === id
+        );
+
+
+    if (index === -1)
+        return;
+
+
+    const newIndex =
+        index + direction;
+
+
+    if (
+        newIndex < 0 ||
+        newIndex >= orders.length
+    ) {
+
+        return;
+
+    }
+
+
+    const temp =
+        orders[index];
+
+
+    orders[index] =
+        orders[newIndex];
+
+
+    orders[newIndex] =
+        temp;
+
+
+    saveOrders();
+
+    renderOrders();
+
+}
+
+
+/* ========================================
+   REMAINING TIME
+======================================== */
 
 function getRemainingTime(order) {
 
@@ -729,6 +1427,7 @@ function getRemainingTime(order) {
             order.status =
                 "ready";
 
+
             saveOrders();
 
         }
@@ -744,9 +1443,9 @@ function getRemainingTime(order) {
 }
 
 
-// ========================================
-// ԺԱՄԱՆԱԿԻ ՁԵՎԱՉԱՓ
-// ========================================
+/* ========================================
+   FORMAT TIMER
+======================================== */
 
 function formatTime(
     milliseconds
@@ -754,57 +1453,57 @@ function formatTime(
 
     const totalSeconds =
         Math.ceil(
-            milliseconds /
-            1000
+            milliseconds / 1000
         );
 
 
     const minutes =
         Math.floor(
-            totalSeconds /
-            60
+            totalSeconds / 60
         );
 
 
     const seconds =
-        totalSeconds %
-        60;
+        totalSeconds % 60;
 
 
     return (
         String(minutes)
-            .padStart(2, "0")
+            .padStart(
+                2,
+                "0"
+            )
         +
         ":"
         +
         String(seconds)
-            .padStart(2, "0")
+            .padStart(
+                2,
+                "0"
+            )
     );
 
 }
 
 
-// ========================================
-// YANDEX MAP
-// ========================================
+/* ========================================
+   YANDEX MAP
+======================================== */
 
 function getYandexMapLink(
     coordinates
 ) {
 
-    if (!coordinates) {
-
+    if (!coordinates)
         return null;
-
-    }
 
 
     const parts =
         coordinates
             .split(",")
             .map(
-                value =>
-                    value.trim()
+                item =>
+                    item.trim()
             );
 
 
@@ -826,8 +1525,10 @@ function getYandexMapLink(
 
 
     if (
-        !Number.isFinite(latitude) ||
-        !Number.isFinite(longitude)
+        !isValidCoordinate(
+            latitude,
+            longitude
+        )
     ) {
 
         return null;
@@ -860,67 +1561,9 @@ function getYandexMapLink(
 }
 
 
-// ========================================
-// ԱՂԲՅՈՒՐ
-// ========================================
-
-function getSourceHTML(
-    source
-) {
-
-    if (!source) {
-
-        return "—";
-
-    }
-
-
-    let sourceClass = "";
-
-
-    if (
-        source ===
-        "Yandex"
-    ) {
-
-        sourceClass =
-            "yandex";
-
-    }
-
-    else if (
-        source ===
-        "Murakami"
-    ) {
-
-        sourceClass =
-            "murakami";
-
-    }
-
-    else if (
-        source ===
-        "YerevanCity"
-    ) {
-
-        sourceClass =
-            "yerevancity";
-
-    }
-
-
-    return `
-        <span class="source-badge ${sourceClass}">
-            ${escapeHTML(source)}
-        </span>
-    `;
-
-}
-
-
-// ========================================
-// ՊԱՏՎԵՐՆԵՐԻ ՑՈՒՑԱԴՐՈՒՄ
-// ========================================
+/* ========================================
+   RENDER
+======================================== */
 
 function renderOrders() {
 
@@ -953,11 +1596,24 @@ function renderOrders() {
         orders.filter(
             order => {
 
-                return String(
-                    order.address || ""
-                )
-                    .toLowerCase()
-                    .includes(search);
+                const address =
+                    String(
+                        order.address || ""
+                    )
+                        .toLowerCase();
+
+
+                const source =
+                    String(
+                        order.source || ""
+                    )
+                        .toLowerCase();
+
+
+                return (
+                    address.includes(search) ||
+                    source.includes(search)
+                );
 
             }
         );
@@ -970,7 +1626,9 @@ function renderOrders() {
         empty.style.display =
             "block";
 
-    } else {
+    }
+
+    else {
 
         empty.style.display =
             "none";
@@ -979,17 +1637,13 @@ function renderOrders() {
 
 
     filteredOrders.forEach(
-        order => {
+        (order, visibleIndex) => {
 
             const remaining =
                 getRemainingTime(
                     order
                 );
 
-
-            // ========================================
-            // ԿԱՐԳԱՎԻՃԱԿ
-            // ========================================
 
             let statusText;
 
@@ -1033,9 +1687,9 @@ function renderOrders() {
             }
 
 
-            // ========================================
-            // TIMER
-            // ========================================
+            /*
+                TIMER
+            */
 
             let timerHTML;
 
@@ -1100,9 +1754,9 @@ function renderOrders() {
             }
 
 
-            // ========================================
-            // MAP
-            // ========================================
+            /*
+                MAP
+            */
 
             const mapLink =
                 getYandexMapLink(
@@ -1112,34 +1766,28 @@ function renderOrders() {
 
             const mapHTML =
                 mapLink
+
                     ?
+
                     `
-                        <a
-                            href="${mapLink}"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="map-link"
-                        >
-                            Map
-                        </a>
+                    <a
+                        href="${mapLink}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="map-link"
+                    >
+                        📍 Map
+                    </a>
                     `
+
                     :
+
                     "—";
 
 
-            // ========================================
-            // ԱՂԲՅՈՒՐ
-            // ========================================
-
-            const sourceHTML =
-                getSourceHTML(
-                    order.source
-                );
-
-
-            // ========================================
-            // ROW
-            // ========================================
+            /*
+                ROW
+            */
 
             const row =
                 document.createElement(
@@ -1147,47 +1795,38 @@ function renderOrders() {
                 );
 
 
-            const index =
-                orders.findIndex(
-                    item =>
-                        item.id ===
-                        order.id
-                );
-
-
-            const canMoveUp =
-                index > 0;
-
-
-            const canMoveDown =
-                index <
-                orders.length - 1;
-
-
             row.innerHTML = `
 
                 <td>
                     ${escapeHTML(
-                        order.createdTime || "—"
+                        order.createdTime ||
+                        "—"
                     )}
                 </td>
 
 
                 <td>
-                    ${sourceHTML}
+                    <span class="source-badge">
+                        ${escapeHTML(
+                            order.source ||
+                            "—"
+                        )}
+                    </span>
                 </td>
 
 
                 <td>
                     ${escapeHTML(
-                        order.address || "—"
+                        order.address ||
+                        "—"
                     )}
                 </td>
 
 
                 <td>
                     ${Number(
-                        order.amount || 0
+                        order.amount ||
+                        0
                     ).toLocaleString(
                         "hy-AM"
                     )}
@@ -1197,7 +1836,8 @@ function renderOrders() {
 
                 <td>
                     ${Number(
-                        order.preparationTime || 0
+                        order.preparationTime ||
+                        0
                     )}
                     րոպե
                 </td>
@@ -1231,8 +1871,22 @@ function renderOrders() {
 
                     <div class="actions">
 
+                        <button
+                            class="
+                                action-btn
+                                move-btn
+                            "
+                            onclick="
+                                moveOrder(
+                                    '${order.id}',
+                                    -1
+                                )
+                            "
+                            title="Վերև"
+                        >
+                            ↑
+                        </button>
 
-                        <!-- ՎԵՐԵՎ -->
 
                         <button
                             class="
@@ -1240,37 +1894,16 @@ function renderOrders() {
                                 move-btn
                             "
                             onclick="
-                                moveOrderUp(
-                                    '${order.id}'
+                                moveOrder(
+                                    '${order.id}',
+                                    1
                                 )
                             "
-                            ${canMoveUp ? "" : "disabled"}
-                            title="Տեղափոխել վերև"
+                            title="Ներքև"
                         >
-                            ⬆️
+                            ↓
                         </button>
 
-
-                        <!-- ՆԵՐՔԵՎ -->
-
-                        <button
-                            class="
-                                action-btn
-                                move-btn
-                            "
-                            onclick="
-                                moveOrderDown(
-                                    '${order.id}'
-                                )
-                            "
-                            ${canMoveDown ? "" : "disabled"}
-                            title="Տեղափոխել ներքև"
-                        >
-                            ⬇️
-                        </button>
-
-
-                        <!-- ԽՄԲԱԳՐԵԼ -->
 
                         <button
                             class="
@@ -1287,8 +1920,6 @@ function renderOrders() {
                             ✏️
                         </button>
 
-
-                        <!-- ԱՎԱՐՏԵԼ -->
 
                         ${
                             order.status !==
@@ -1319,8 +1950,6 @@ function renderOrders() {
                         }
 
 
-                        <!-- ՋՆՋԵԼ -->
-
                         <button
                             class="
                                 action-btn
@@ -1336,7 +1965,6 @@ function renderOrders() {
                             🗑️
                         </button>
 
-
                     </div>
 
                 </td>
@@ -1351,86 +1979,12 @@ function renderOrders() {
         }
     );
 
-
-    updateStats();
-
 }
 
 
-// ========================================
-// ՎԻՃԱԿԱԳՐՈՒԹՅՈՒՆ
-// ========================================
-
-function updateStats() {
-
-    const total =
-        orders.length;
-
-
-    const active =
-        orders.filter(
-            o =>
-                o.status ===
-                "preparing"
-        ).length;
-
-
-    const ready =
-        orders.filter(
-            o =>
-                o.status ===
-                "ready"
-        ).length;
-
-
-    const amount =
-        orders.reduce(
-            (
-                sum,
-                order
-            ) =>
-                sum +
-                Number(
-                    order.amount ||
-                    0
-                ),
-            0
-        );
-
-
-    document.getElementById(
-        "totalOrders"
-    ).textContent =
-        total;
-
-
-    document.getElementById(
-        "activeOrders"
-    ).textContent =
-        active;
-
-
-    document.getElementById(
-        "readyOrders"
-    ).textContent =
-        ready;
-
-
-    document.getElementById(
-        "totalAmount"
-    ).textContent =
-        amount.toLocaleString(
-            "hy-AM"
-        )
-        +
-        " ֏";
-
-}
-
-
-// ========================================
-// HTML ԱՆՎՏԱՆԳՈՒԹՅՈՒՆ
-// ========================================
+/* ========================================
+   HTML SECURITY
+======================================== */
 
 function escapeHTML(value) {
 
@@ -1464,9 +2018,9 @@ function escapeHTML(value) {
 }
 
 
-// ========================================
-// ԱՎՏՈՄԱՏ ԹԱՐՄԱՑՈՒՄ
-// ========================================
+/* ========================================
+   AUTO TIMER UPDATE
+======================================== */
 
 setInterval(
     () => {
@@ -1478,8 +2032,8 @@ setInterval(
 );
 
 
-// ========================================
-// ՍԿԶԲՆԱԿԱՆ ԲԱՑՈՒՄ
-// ========================================
+/* ========================================
+   INITIAL
+======================================== */
 
 renderOrders();
