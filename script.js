@@ -2,9 +2,10 @@
 // ՊԱՏՎԵՐՆԵՐ
 // ======================================================
 
-let orders = JSON.parse(
-    localStorage.getItem("orders")
-) || [];
+let orders =
+    JSON.parse(
+        localStorage.getItem("orders")
+    ) || [];
 
 let parsedOrderData = null;
 let selectedPreparationTime = null;
@@ -46,14 +47,18 @@ function escapeHTML(value) {
 
 function detectSource(text) {
 
-    const value = text.toLowerCase();
+    const value =
+        String(text).toLowerCase();
 
-    // Yandex
+
+    // YANDEX
+
     if (
         value.includes("работа с заказами") ||
         value.includes("управление ресторанами") ||
-        value.includes("yandex.ru/maps") ||
-        value.includes("доставка ресторана")
+        value.includes("доставка ресторана") ||
+        value.includes("адрес доставки") ||
+        value.includes("yandex.ru/maps")
     ) {
 
         return "Yandex";
@@ -61,11 +66,14 @@ function detectSource(text) {
     }
 
 
-    // Murakami
+    // MURAKAMI
+
     if (
         value.includes("api.murakamicity.com") ||
-        value.includes("murakami city") &&
-        value.includes("fulfillment") ||
+        (
+            value.includes("murakami city") &&
+            value.includes("fulfillment")
+        ) ||
         value.includes("nearest branch")
     ) {
 
@@ -74,12 +82,15 @@ function detectSource(text) {
     }
 
 
-    // Yerevan City
+    // YEREVAN CITY
+
     if (
         value.includes("erp-admin.innodream.com") ||
         value.includes("yerevan-city.am") ||
         value.includes("order information") ||
-        value.includes("կապի և առաքման վերաբերյալ տեղեկություններ")
+        value.includes(
+            "կապի և առաքման վերաբերյալ տեղեկություններ"
+        )
     ) {
 
         return "Yerevan City";
@@ -93,7 +104,29 @@ function detectSource(text) {
 
 
 // ======================================================
-// ԺԱՄԱՆԱԿԻ ՆՈՐՄԱԼԱՑՈՒՄ
+// ԹԻՎ
+// ======================================================
+
+function parseAmount(value) {
+
+    if (!value) {
+        return 0;
+    }
+
+
+    return Number(
+        String(value)
+            .replace(/\u00A0/g, "")
+            .replace(/\s/g, "")
+            .replace(/,/g, "")
+            .replace(/[^\d]/g, "")
+    ) || 0;
+
+}
+
+
+// ======================================================
+// ԺԱՄ
 // ======================================================
 
 function normalizeTime(time) {
@@ -102,13 +135,17 @@ function normalizeTime(time) {
         return "";
     }
 
-    const match = String(time).match(
-        /(\d{1,2}):(\d{2})/
-    );
+
+    const match =
+        String(time).match(
+            /(\d{1,2}):(\d{2})/
+        );
+
 
     if (!match) {
         return "";
     }
+
 
     return (
         String(match[1]).padStart(2, "0") +
@@ -120,26 +157,7 @@ function normalizeTime(time) {
 
 
 // ======================================================
-// ԳՈՒՄԱՐԻ ՆՈՐՄԱԼԱՑՈՒՄ
-// ======================================================
-
-function parseAmount(value) {
-
-    if (!value) {
-        return 0;
-    }
-
-    let text = String(value)
-        .replace(/\u00A0/g, " ")
-        .replace(/[^\d]/g, "");
-
-    return Number(text) || 0;
-
-}
-
-
-// ======================================================
-// YANDEX
+// YANDEX PARSER
 // ======================================================
 
 function parseYandex(text) {
@@ -150,33 +168,47 @@ function parseYandex(text) {
     let coordinates = "";
 
 
-    // --------------------------------------------------
-    // ՍՏԵՂԾՄԱՆ ԺԱՄ
-    // Օրինակ՝ Создан в 23:32 24 авг.
-    // --------------------------------------------------
+    const cleanText =
+        String(text)
+            .replace(/\r/g, "")
+            .replace(/\u00A0/g, " ")
+            .replace(/\*\*/g, "")
+            .trim();
 
-    const createdMatch = text.match(
-        /Создан\s+в\s+(\d{1,2}:\d{2})/i
-    );
+
+    // ==================================================
+    // ՍՏԵՂԾՄԱՆ ԺԱՄ
+    // ==================================================
+
+    const createdMatch =
+        cleanText.match(
+            /Создан\s+в\s+(\d{1,2}):(\d{2})/i
+        );
+
 
     if (createdMatch) {
 
         createdTime =
-            normalizeTime(
+            String(
                 createdMatch[1]
-            );
+            ).padStart(2, "0") +
+            ":" +
+            createdMatch[2];
 
     }
 
 
-    // --------------------------------------------------
+    // ==================================================
     // ԸՆԴՀԱՆՈՒՐ ԳՈՒՄԱՐ
-    // Փնտրում ենք Итого
-    // --------------------------------------------------
+    //
+    // Միայն Итого-ից հետո
+    // ==================================================
 
-    const totalMatch = text.match(
-        /Итого:\s*[\s\S]{0,100}?\*\*?([\d\s\u00A0]+)\s*֏/i
-    );
+    const totalMatch =
+        cleanText.match(
+            /Итого\s*:\s*\n?\s*([\d\s]+)\s*֏/i
+        );
+
 
     if (totalMatch) {
 
@@ -188,64 +220,118 @@ function parseYandex(text) {
     }
 
 
-    // Եթե վերևի տարբերակը չաշխատի
+    // Երկրորդ fallback
+
     if (!amount) {
 
-        const amountMatches = [
-            ...text.matchAll(
-                /([\d\s\u00A0]+)\s*֏/g
-            )
-        ];
+        const fallbackTotal =
+            cleanText.match(
+                /Итого[\s\S]{0,80}?([\d\s]+)\s*֏/i
+            );
 
-        if (amountMatches.length) {
 
-            const values =
-                amountMatches.map(
-                    m => parseAmount(m[1])
-                );
+        if (fallbackTotal) {
 
             amount =
-                Math.max(...values);
+                parseAmount(
+                    fallbackTotal[1]
+                );
 
         }
 
     }
 
 
-    // --------------------------------------------------
+    // ==================================================
     // ՀԱՍՑԵ
-    // --------------------------------------------------
+    //
+    // Адрес доставки
+    // հաջորդ տողը
+    // ==================================================
 
-    const addressMatch = text.match(
-        /\*\*Адрес доставки\*\*\s*[\r\n]+(?:\[([^\]]+)\]|([^\r\n]+))/i
-    );
+    const addressMatch =
+        cleanText.match(
+            /Адрес доставки\s*\n\s*([^\n]+?)(?=\n\s*(?:квартира|Приборы|Комментарий ресторану|Комментарий курьеру|$))/i
+        );
+
 
     if (addressMatch) {
 
         address =
-            (
-                addressMatch[1] ||
-                addressMatch[2] ||
-                ""
-            ).trim();
+            addressMatch[1].trim();
 
     }
 
 
-    // --------------------------------------------------
-    // ԿՈՈՐԴԻՆԱՏՆԵՐ
-    //
-    // Yandex link-ում լինում է՝
-    // whatshere[point]=44.50422,40.18407
-    //
-    // Մենք պահում ենք՝
-    // latitude, longitude
-    // 40.18407, 44.50422
-    // --------------------------------------------------
+    // Fallback
 
-    const coordMatch = text.match(
-        /whatshere(?:%5B|\[)point(?:%5D|\])=([\d.-]+)%2C([\d.-]+)/i
-    );
+    if (!address) {
+
+        const addressFallback =
+            cleanText.match(
+                /Адрес доставки\s*\n\s*([^\n]+)/i
+            );
+
+
+        if (addressFallback) {
+
+            const possibleAddress =
+                addressFallback[1].trim();
+
+
+            if (
+                possibleAddress &&
+                !/^Приборы$/i.test(
+                    possibleAddress
+                ) &&
+                !/^Комментарий/i.test(
+                    possibleAddress
+                )
+            ) {
+
+                address =
+                    possibleAddress;
+
+            }
+
+        }
+
+    }
+
+
+    // ==================================================
+    // ԿՈՈՐԴԻՆԱՏՆԵՐ
+    // ==================================================
+
+    let coordMatch =
+        cleanText.match(
+            /whatshere(?:%5B|\[)point(?:%5D|\])=([\d.-]+)(?:%2C|,)([\d.-]+)/i
+        );
+
+
+    // pt=
+
+    if (!coordMatch) {
+
+        coordMatch =
+            cleanText.match(
+                /[?&]pt=([\d.-]+),([\d.-]+)/i
+            );
+
+    }
+
+
+    // ll=
+
+    if (!coordMatch) {
+
+        coordMatch =
+            cleanText.match(
+                /[?&]ll=([\d.-]+),([\d.-]+)/i
+            );
+
+    }
+
 
     if (coordMatch) {
 
@@ -254,6 +340,7 @@ function parseYandex(text) {
 
         const latitude =
             coordMatch[2];
+
 
         coordinates =
             `${latitude}, ${longitude}`;
@@ -279,7 +366,7 @@ function parseYandex(text) {
 
 
 // ======================================================
-// MURAKAMI
+// MURAKAMI PARSER
 // ======================================================
 
 function parseMurakami(text) {
@@ -290,15 +377,22 @@ function parseMurakami(text) {
     let coordinates = "";
 
 
-    // --------------------------------------------------
-    // ՍՏԵՂԾՄԱՆ ԺԱՄ
-    //
-    // Accepted Aug 24, 2026 23:07
-    // --------------------------------------------------
+    const cleanText =
+        String(text)
+            .replace(/\r/g, "")
+            .replace(/\u00A0/g, " ")
+            .trim();
 
-    const acceptedMatch = text.match(
-        /Accepted\s+[A-Za-z]{3}\s+\d{1,2},\s+\d{4}\s+(\d{1,2}:\d{2})/i
-    );
+
+    // ==================================================
+    // ACCEPTED
+    // ==================================================
+
+    const acceptedMatch =
+        cleanText.match(
+            /Accepted\s+[A-Za-z]{3}\s+\d{1,2},\s+\d{4}\s+(\d{1,2}:\d{2})/i
+        );
+
 
     if (acceptedMatch) {
 
@@ -310,15 +404,15 @@ function parseMurakami(text) {
     }
 
 
-    // --------------------------------------------------
-    // ԸՆԴՀԱՆՈՒՐ ԳՈՒՄԱՐ
-    //
-    // Total15,600 AMD
-    // --------------------------------------------------
+    // ==================================================
+    // TOTAL
+    // ==================================================
 
-    const totalMatch = text.match(
-        /Total\s*([\d\s,]+)\s*AMD/i
-    );
+    const totalMatch =
+        cleanText.match(
+            /Total\s*([\d\s,]+)\s*AMD/i
+        );
+
 
     if (totalMatch) {
 
@@ -330,15 +424,15 @@ function parseMurakami(text) {
     }
 
 
-    // --------------------------------------------------
-    // ՀԱՍՑԵ
-    //
-    // AddressԵրևան, ...
-    // --------------------------------------------------
+    // ==================================================
+    // ADDRESS
+    // ==================================================
 
-    const addressMatch = text.match(
-        /Address\s+([^\r\n]+?)(?=\s+Entrance\b|\s+Floor\b|\s+Apartment\b|\s+Phone\b)/i
-    );
+    const addressMatch =
+        cleanText.match(
+            /Address\s+([^\r\n]+?)(?=\s+Entrance\b|\s+Floor\b|\s+Apartment\b|\s+Phone\b)/i
+        );
+
 
     if (addressMatch) {
 
@@ -348,19 +442,15 @@ function parseMurakami(text) {
     }
 
 
-    // --------------------------------------------------
-    // ԿՈՈՐԴԻՆԱՏՆԵՐ
-    //
-    // Yandex Map
-    // pt=44.452579313869,40.199989784301
-    //
-    // Պահում ենք՝
-    // 40.199989784301, 44.452579313869
-    // --------------------------------------------------
+    // ==================================================
+    // YANDEX MAP
+    // ==================================================
 
-    const mapMatch = text.match(
-        /yandex\.com\/maps\/\?pt=([\d.-]+),([\d.-]+)/i
-    );
+    const mapMatch =
+        cleanText.match(
+            /yandex\.com\/maps\/\?pt=([\d.-]+),([\d.-]+)/i
+        );
+
 
     if (mapMatch) {
 
@@ -369,6 +459,7 @@ function parseMurakami(text) {
 
         const latitude =
             mapMatch[2];
+
 
         coordinates =
             `${latitude}, ${longitude}`;
@@ -394,7 +485,7 @@ function parseMurakami(text) {
 
 
 // ======================================================
-// YEREVAN CITY
+// YEREVAN CITY PARSER
 // ======================================================
 
 function parseYerevanCity(text) {
@@ -405,16 +496,22 @@ function parseYerevanCity(text) {
     let coordinates = "";
 
 
-    // --------------------------------------------------
-    // ՍՏԵՂԾՄԱՆ ԺԱՄ
-    //
-    // Ստեղծած ամսաթիվ :
-    // 24 Aug 2026 20:54
-    // --------------------------------------------------
+    const cleanText =
+        String(text)
+            .replace(/\r/g, "")
+            .replace(/\u00A0/g, " ")
+            .trim();
 
-    const createdMatch = text.match(
-        /Ստեղծած\s+ամսաթիվ\s*:\s*[\r\n]*\s*\d{1,2}\s+[A-Za-z]{3}\s+\d{4}\s+(\d{1,2}:\d{2})/i
-    );
+
+    // ==================================================
+    // ՍՏԵՂԾԱԾ ԱՄՍԱԹԻՎ
+    // ==================================================
+
+    const createdMatch =
+        cleanText.match(
+            /Ստեղծած\s+ամսաթիվ\s*:\s*\n?\s*\d{1,2}\s+[A-Za-z]{3}\s+\d{4}\s+(\d{1,2}:\d{2})/i
+        );
+
 
     if (createdMatch) {
 
@@ -426,16 +523,15 @@ function parseYerevanCity(text) {
     }
 
 
-    // --------------------------------------------------
-    // ԸՆԴՀԱՆՈՒՐ ԳՈՒՄԱՐ
-    //
-    // Ընդհանուր:
-    // 34 500֏
-    // --------------------------------------------------
+    // ==================================================
+    // ԸՆԴՀԱՆՈՒՐ
+    // ==================================================
 
-    const totalMatch = text.match(
-        /Ընդհանուր\s*:\s*[\r\n]*\s*([\d\s\u00A0]+)\s*֏/i
-    );
+    const totalMatch =
+        cleanText.match(
+            /Ընդհանուր\s*:\s*\n?\s*([\d\s\u00A0]+)\s*֏/i
+        );
+
 
     if (totalMatch) {
 
@@ -447,17 +543,15 @@ function parseYerevanCity(text) {
     }
 
 
-    // --------------------------------------------------
-    // ՀԱՍՑԵ
-    //
-    // Առաքվող:
-    // Yerevan, ...
-    // մինչև հաջորդ դաշտը
-    // --------------------------------------------------
+    // ==================================================
+    // ԱՌԱՔՎՈՂ
+    // ==================================================
 
-    const addressMatch = text.match(
-        /Առաքվող\s*:\s*[\r\n]*\s*([^\r\n]+?)(?=\s*[\r\n]+Ստեղծած\s+ամսաթիվ)/i
-    );
+    const addressMatch =
+        cleanText.match(
+            /Առաքվող\s*:\s*\n?\s*([^\r\n]+?)(?=\s*\n+Ստեղծած\s+ամսաթիվ)/i
+        );
+
 
     if (addressMatch) {
 
@@ -467,33 +561,27 @@ function parseYerevanCity(text) {
     }
 
 
-    // --------------------------------------------------
-    // ԿՈՈՐԴԻՆԱՏՆԵՐ
-    //
-    // Եթե Yerevan City-ի էջում հետագայում
-    // Yandex Map link լինի՝ վերցնում ենք դրանից
-    // --------------------------------------------------
+    // ==================================================
+    // YANDEX MAP
+    // ==================================================
 
-    const mapMatch =
-        text.match(
+    let mapMatch =
+        cleanText.match(
             /yandex\.com\/maps\/\?[^ \r\n]*?(?:pt|ll)=([\d.-]+),([\d.-]+)/i
         );
 
 
     if (mapMatch) {
 
-        const first =
+        const longitude =
             mapMatch[1];
 
-        const second =
+        const latitude =
             mapMatch[2];
 
 
-        // Yandex-ի URL-ում առաջինը longitude է,
-        // երկրորդը latitude
-
         coordinates =
-            `${second}, ${first}`;
+            `${latitude}, ${longitude}`;
 
     }
 
@@ -521,11 +609,25 @@ function parseYerevanCity(text) {
 
 function parseOrderText() {
 
+    const input =
+        document.getElementById(
+            "orderText"
+        );
+
+
+    if (!input) {
+
+        alert(
+            "orderText դաշտը HTML-ում չկա։"
+        );
+
+        return;
+
+    }
+
+
     const text =
-        document
-            .getElementById("orderText")
-            .value
-            .trim();
+        input.value.trim();
 
 
     if (!text) {
@@ -546,21 +648,12 @@ function parseOrderText() {
     let result = null;
 
 
-    // --------------------------------------------------
-    // YANDEX
-    // --------------------------------------------------
-
     if (source === "Yandex") {
 
         result =
             parseYandex(text);
 
     }
-
-
-    // --------------------------------------------------
-    // MURAKAMI
-    // --------------------------------------------------
 
     else if (source === "Murakami") {
 
@@ -569,22 +662,12 @@ function parseOrderText() {
 
     }
 
-
-    // --------------------------------------------------
-    // YEREVAN CITY
-    // --------------------------------------------------
-
     else if (source === "Yerevan City") {
 
         result =
             parseYerevanCity(text);
 
     }
-
-
-    // --------------------------------------------------
-    // UNKNOWN
-    // --------------------------------------------------
 
     else {
 
@@ -598,12 +681,13 @@ function parseOrderText() {
     }
 
 
-    parsedOrderData = result;
+    parsedOrderData =
+        result;
 
 
-    // --------------------------------------------------
-    // ՑՈՒՑԱԴՐԵԼ
-    // --------------------------------------------------
+    // ==================================================
+    // ԱՐԴՅՈՒՆՔ
+    // ==================================================
 
     document.getElementById(
         "parsedSource"
@@ -621,7 +705,9 @@ function parseOrderText() {
         "parsedAmount"
     ).textContent =
         result.amount
-            ? result.amount.toLocaleString("hy-AM") + " ֏"
+            ? result.amount.toLocaleString(
+                "hy-AM"
+            ) + " ֏"
             : "—";
 
 
@@ -637,9 +723,9 @@ function parseOrderText() {
         result.coordinates || "—";
 
 
-    // --------------------------------------------------
-    // RESET PREPARATION
-    // --------------------------------------------------
+    // ==================================================
+    // PREPARATION RESET
+    // ==================================================
 
     selectedPreparationTime =
         null;
@@ -657,10 +743,6 @@ function parseOrderText() {
         );
 
 
-    // --------------------------------------------------
-    // SHOW RESULT
-    // --------------------------------------------------
-
     document
         .getElementById(
             "parsedOrder"
@@ -673,7 +755,7 @@ function parseOrderText() {
 
 
 // ======================================================
-// ՊԱՏՐԱՍՏՄԱՆ ԺԱՄԱՆԱԿԻ ԸՆՏՐՈՒԹՅՈՒՆ
+// ՊԱՏՐԱՍՏՄԱՆ ԺԱՄԱՆԱԿ
 // ======================================================
 
 function selectPreparationTime(minutes) {
@@ -708,7 +790,7 @@ function selectPreparationTime(minutes) {
 
 
 // ======================================================
-// PARSED ՊԱՏՎԵՐԸ ՍՏԵՂԾԵԼ
+// PARSED ՊԱՏՎԵՐԻ ՍՏԵՂԾՈՒՄ
 // ======================================================
 
 function createParsedOrder() {
@@ -716,7 +798,7 @@ function createParsedOrder() {
     if (!parsedOrderData) {
 
         alert(
-            "Սկզբում պետք է վերլուծել պատվերի տեքստը։"
+            "Սկզբում վերլուծիր պատվերի տեքստը։"
         );
 
         return;
@@ -750,11 +832,11 @@ function createParsedOrder() {
         createdTime:
             parsedOrderData.createdTime,
 
-        address:
-            parsedOrderData.address,
-
         amount:
             parsedOrderData.amount,
+
+        address:
+            parsedOrderData.address,
 
         coordinates:
             parsedOrderData.coordinates,
@@ -784,11 +866,7 @@ function createParsedOrder() {
 
     saveOrders();
 
-
-    // Մաքրել parser-ը
-
     clearParser();
-
 
     renderOrders();
 
@@ -796,23 +874,37 @@ function createParsedOrder() {
 
 
 // ======================================================
-// PARSER-Ը ՄԱՔՐԵԼ
+// PARSER RESET
 // ======================================================
 
 function clearParser() {
 
-    document.getElementById(
-        "orderText"
-    ).value = "";
+    const input =
+        document.getElementById(
+            "orderText"
+        );
 
 
-    document
-        .getElementById(
+    if (input) {
+
+        input.value = "";
+
+    }
+
+
+    const parsed =
+        document.getElementById(
             "parsedOrder"
-        )
-        .classList.remove(
+        );
+
+
+    if (parsed) {
+
+        parsed.classList.remove(
             "show"
         );
+
+    }
 
 
     parsedOrderData =
@@ -884,7 +976,7 @@ function getRemainingTime(order) {
 
 
 // ======================================================
-// ԺԱՄԱՆԱԿԻ ՁԵՎԱՉԱՓ
+// TIMER FORMAT
 // ======================================================
 
 function formatTime(milliseconds) {
@@ -893,35 +985,42 @@ function formatTime(milliseconds) {
         Math.max(
             0,
             Math.ceil(
-                milliseconds / 1000
+                milliseconds /
+                1000
             )
         );
 
 
     const minutes =
         Math.floor(
-            totalSeconds / 60
+            totalSeconds /
+            60
         );
 
 
     const seconds =
-        totalSeconds % 60;
+        totalSeconds %
+        60;
 
 
     return (
-        String(minutes).padStart(2, "0") +
+        String(minutes)
+            .padStart(2, "0") +
         ":" +
-        String(seconds).padStart(2, "0")
+        String(seconds)
+            .padStart(2, "0")
     );
 
 }
 
 
 // ======================================================
-// YANDEX MAP
+// YANDEX MAP LINK
 // ======================================================
 
-function getYandexMapLink(coordinates) {
+function getYandexMapLink(
+    coordinates
+) {
 
     if (!coordinates) {
 
@@ -1060,14 +1159,23 @@ function renderOrders() {
         );
 
 
+    const searchInput =
+        document.getElementById(
+            "searchInput"
+        );
+
+
+    if (!table) {
+        return;
+    }
+
+
     const search =
-        document
-            .getElementById(
-                "searchInput"
-            )
-            .value
-            .toLowerCase()
-            .trim();
+        searchInput
+            ? searchInput.value
+                .toLowerCase()
+                .trim()
+            : "";
 
 
     table.innerHTML = "";
@@ -1084,22 +1192,28 @@ function renderOrders() {
         );
 
 
-    empty.style.display =
-        filteredOrders.length === 0
-            ? "block"
-            : "none";
+    if (empty) {
+
+        empty.style.display =
+            filteredOrders.length === 0
+                ? "block"
+                : "none";
+
+    }
 
 
     filteredOrders.forEach(
         order => {
 
             const remaining =
-                getRemainingTime(order);
+                getRemainingTime(
+                    order
+                );
 
 
-            // --------------------------------------------------
+            // ==================================================
             // STATUS
-            // --------------------------------------------------
+            // ==================================================
 
             let statusText =
                 "Պատրաստվում է";
@@ -1136,9 +1250,9 @@ function renderOrders() {
             }
 
 
-            // --------------------------------------------------
+            // ==================================================
             // TIMER
-            // --------------------------------------------------
+            // ==================================================
 
             let timerHTML =
                 "—";
@@ -1198,9 +1312,9 @@ function renderOrders() {
             }
 
 
-            // --------------------------------------------------
+            // ==================================================
             // MAP
-            // --------------------------------------------------
+            // ==================================================
 
             const mapLink =
                 getYandexMapLink(
@@ -1223,9 +1337,9 @@ function renderOrders() {
                     : "—";
 
 
-            // --------------------------------------------------
+            // ==================================================
             // ROW
-            // --------------------------------------------------
+            // ==================================================
 
             const row =
                 document.createElement(
@@ -1243,13 +1357,11 @@ function renderOrders() {
                     </span>
                 </td>
 
-
                 <td>
                     ${escapeHTML(
                         order.createdTime || "—"
                     )}
                 </td>
-
 
                 <td>
                     ${escapeHTML(
@@ -1257,14 +1369,14 @@ function renderOrders() {
                     )}
                 </td>
 
-
                 <td>
                     ${Number(
                         order.amount || 0
-                    ).toLocaleString("hy-AM")}
+                    ).toLocaleString(
+                        "hy-AM"
+                    )}
                     ֏
                 </td>
-
 
                 <td>
                     ${Number(
@@ -1273,28 +1385,22 @@ function renderOrders() {
                     րոպե
                 </td>
 
-
                 <td>
                     ${timerHTML}
                 </td>
-
 
                 <td>
                     ${mapHTML}
                 </td>
 
-
                 <td>
-
                     <span class="
                         status
                         ${statusClass}
                     ">
                         ${statusText}
                     </span>
-
                 </td>
-
 
                 <td>
 
@@ -1305,7 +1411,6 @@ function renderOrders() {
                             "completed"
 
                             ? `
-
                                 <button
                                     class="
                                         action-btn
@@ -1320,12 +1425,9 @@ function renderOrders() {
                                 >
                                     ✓
                                 </button>
-
                             `
-
                             : ""
                         }
-
 
                         <button
                             class="
@@ -1360,7 +1462,7 @@ function renderOrders() {
 
 
 // ======================================================
-// ԱՎՏՈՄԱՏ ԹԱՐՄԱՑՈՒՄ
+// ԱՎՏՈՄԱՏ TIMER UPDATE
 // ======================================================
 
 setInterval(
@@ -1374,7 +1476,7 @@ setInterval(
 
 
 // ======================================================
-// ՍԿԶԲՆԱԿԱՆ
+// START
 // ======================================================
 
 renderOrders();
