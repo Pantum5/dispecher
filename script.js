@@ -37,16 +37,13 @@ function openOrderModal() {
         "modalTitle"
     ).textContent = "Նոր պատվեր";
 
-
     document
         .getElementById("orderForm")
         .reset();
 
-
     document
         .getElementById("orderModal")
         .classList.add("show");
-
 }
 
 
