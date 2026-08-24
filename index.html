@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="hy">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Պատվերների կառավարում</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+    <div>
+        <h1>📦 Պատվերների կառավարում</h1>
+        <p>Օպերատորի անձնական համակարգ</p>
+    </div>
+
+    <button class="add-btn" onclick="openOrderModal()">
+        ＋ Նոր պատվեր
+    </button>
+</header>
+
+<main class="container">
+
+    <section class="stats">
+        <div class="stat-card">
+            <span>Ընդհանուր պատվերներ</span>
+            <strong id="totalOrders">0</strong>
+        </div>
+
+        <div class="stat-card">
+            <span>Ակտիվ պատվերներ</span>
+            <strong id="activeOrders">0</strong>
+        </div>
+
+        <div class="stat-card">
+            <span>Պատրաստ պատվերներ</span>
+            <strong id="readyOrders">0</strong>
+        </div>
+
+        <div class="stat-card">
+            <span>Ընդհանուր գումար</span>
+            <strong id="totalAmount">0 ֏</strong>
+        </div>
+    </section>
+
+    <section class="orders-section">
+
+        <div class="section-header">
+            <h2>Պատվերներ</h2>
+
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="🔎 Որոնել պատվեր կամ հասցե..."
+                oninput="renderOrders()"
+            >
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Պատվեր</th>
+                        <th>Հասցե</th>
+                        <th>Գումար</th>
+                        <th>Պատրաստման ժամանակ</th>
+                        <th>Մնացած ժամանակ</th>
+                        <th>Կարգավիճակ</th>
+                        <th>Գործողություններ</th>
+                    </tr>
+                </thead>
+
+                <tbody id="ordersTable"></tbody>
+            </table>
+
+            <div id="emptyState" class="empty-state">
+                📦 Պատվերներ դեռ չկան
+            </div>
+        </div>
+
+    </section>
+
+</main>
+
+
+<!-- ՆՈՐ ՊԱՏՎԵՐ / ՓՈՓՈԽԵԼ -->
+<div id="orderModal" class="modal">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+            <h2 id="modalTitle">Նոր պատվեր</h2>
+            <button onclick="closeOrderModal()" class="close-btn">×</button>
+        </div>
+
+        <form id="orderForm">
+
+            <input type="hidden" id="orderId">
+
+            <label>
+                Պատվերի համար
+                <input
+                    type="text"
+                    id="orderNumber"
+                    placeholder="Օր․ 1254"
+                    required
+                >
+            </label>
+
+            <label>
+                Հասցե
+                <input
+                    type="text"
+                    id="address"
+                    placeholder="Օր․ Կոմիտաս 15"
+                    required
+                >
+            </label>
+
+            <div class="two-columns">
+
+                <label>
+                    Գումար
+                    <input
+                        type="number"
+                        id="amount"
+                        placeholder="8500"
+                        min="0"
+                        required
+                    >
+                </label>
+
+                <label>
+                    Պատրաստման ժամանակ
+                    <input
+                        type="number"
+                        id="preparationTime"
+                        placeholder="35"
+                        min="1"
+                        required
+                    >
+                </label>
+
+            </div>
+
+            <div class="two-columns">
+
+                <label>
+                    Latitude
+                    <input
+                        type="number"
+                        step="any"
+                        id="latitude"
+                        placeholder="40.1812"
+                    >
+                </label>
+
+                <label>
+                    Longitude
+                    <input
+                        type="number"
+                        step="any"
+                        id="longitude"
+                        placeholder="44.5146"
+                    >
+                </label>
+
+            </div>
+
+            <label>
+                Նշում
+                <textarea
+                    id="note"
+                    placeholder="Լրացուցիչ տեղեկություն..."
+                ></textarea>
+            </label>
+
+            <div id="timerWarning" class="timer-warning hidden">
+                ⚠️ Պատրաստման ժամանակը փոփոխվելու է։
+                Վերագործարկե՞լ ժամաչափը։
+            </div>
+
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    class="cancel-btn"
+                    onclick="closeOrderModal()"
+                >
+                    Չեղարկել
+                </button>
+
+                <button type="submit" class="save-btn">
+                    💾 Պահպանել
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+
+<!-- ՀԱՍՏԱՏՈՒՄ -->
+<div id="confirmModal" class="modal">
+
+    <div class="confirm-content">
+
+        <h2>⚠️ Փոփոխել ժամաչափը</h2>
+
+        <p>
+            Պատրաստման ժամանակը փոխվել է։
+            Ցանկանո՞ւմ եք ժամաչափը սկսել նորից։
+        </p>
+
+        <div class="modal-actions">
+
+            <button
+                class="cancel-btn"
+                onclick="finishEdit(false)"
+            >
+                Ոչ
+            </button>
+
+            <button
+                class="save-btn"
+                onclick="finishEdit(true)"
+            >
+                Այո, սկսել նորից
+            </button>
+
+        </div>
+
+    </div>
+</div>
+
+
+<script src="script.js"></script>
+
+</body>
+</html>
