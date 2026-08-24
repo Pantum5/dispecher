@@ -814,13 +814,7 @@ function renderOrders() {
 
             row.innerHTML = `
 
-                <td>
-                    <strong>
-                        #${escapeHTML(
-                            order.orderNumber
-                        )}
-                    </strong>
-                </td>
+                
 
 
                 <td>
