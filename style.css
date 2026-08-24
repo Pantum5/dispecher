@@ -2,64 +2,40 @@
     box-sizing: border-box;
 }
 
-
 body {
     margin: 0;
-
-    font-family:
-        Arial,
-        sans-serif;
-
+    font-family: Arial, sans-serif;
     background: #f4f6f8;
-
     color: #1f2937;
 }
 
 
-/* ========================================
-   HEADER
-======================================== */
+/* HEADER */
 
 .topbar {
-
     background: #111827;
-
     color: white;
 
     padding: 20px 30px;
 
     display: flex;
-
     justify-content: space-between;
-
     align-items: center;
 }
 
-
 .topbar h1 {
-
     margin: 0;
-
     font-size: 24px;
 }
 
-
 .topbar p {
-
     margin: 5px 0 0;
-
     color: #9ca3af;
-
-    font-size: 14px;
 }
 
-
 .add-btn {
-
     border: none;
-
     background: #2563eb;
-
     color: white;
 
     padding: 12px 20px;
@@ -67,37 +43,26 @@ body {
     border-radius: 8px;
 
     font-size: 15px;
-
     cursor: pointer;
 }
 
-
 .add-btn:hover {
-
     background: #1d4ed8;
 }
 
 
-/* ========================================
-   MAIN
-======================================== */
+/* MAIN */
 
 .container {
-
-    max-width: 1700px;
-
+    max-width: 1800px;
     margin: auto;
-
     padding: 25px;
 }
 
 
-/* ========================================
-   ORDERS
-======================================== */
+/* ORDERS */
 
 .orders-section {
-
     background: white;
 
     border-radius: 12px;
@@ -105,47 +70,36 @@ body {
     padding: 20px;
 
     box-shadow:
-        0 2px 8px
-        rgba(0, 0, 0, .05);
+        0 2px 8px rgba(0, 0, 0, .05);
 }
 
-
 .section-header {
-
     display: flex;
 
     justify-content: space-between;
-
     align-items: center;
 
     margin-bottom: 20px;
 }
 
-
 .section-header h2 {
-
     margin: 0;
 }
 
-
 .section-header input {
-
-    width: 320px;
+    width: 300px;
 }
 
 
-/* ========================================
-   INPUTS
-======================================== */
+/* INPUTS */
 
 input,
-textarea {
+textarea,
+select {
 
     width: 100%;
 
-    border:
-        1px solid
-        #d1d5db;
+    border: 1px solid #d1d5db;
 
     border-radius: 7px;
 
@@ -155,46 +109,21 @@ textarea {
 
     outline: none;
 
-    font-family: inherit;
+    background: white;
 }
 
-
 input:focus,
-textarea:focus {
-
+textarea:focus,
+select:focus {
     border-color: #2563eb;
 }
 
-
 textarea {
-
     min-height: 80px;
-
     resize: vertical;
 }
 
-
-label {
-
-    display: block;
-
-    margin-bottom: 15px;
-
-    font-size: 13px;
-
-    font-weight: bold;
-}
-
-
-label input,
-label textarea {
-
-    margin-top: 6px;
-}
-
-
 small {
-
     display: block;
 
     margin-top: 5px;
@@ -205,45 +134,30 @@ small {
 }
 
 
-/* ========================================
-   TABLE
-======================================== */
+/* TABLE */
 
 .table-wrapper {
-
     overflow-x: auto;
 }
 
-
 table {
-
     width: 100%;
-
     border-collapse: collapse;
-
-    min-width: 1100px;
 }
-
 
 th,
 td {
-
     padding: 13px 12px;
 
     border-bottom:
-        1px solid
-        #e5e7eb;
+        1px solid #e5e7eb;
 
     text-align: left;
-
-    vertical-align: middle;
 
     white-space: nowrap;
 }
 
-
 th {
-
     background: #f9fafb;
 
     color: #6b7280;
@@ -252,70 +166,49 @@ th {
 }
 
 
-td {
+/* SOURCE */
 
-    font-size: 14px;
-}
-
-
-/* ========================================
-   SOURCE
-======================================== */
-
-.source-badge {
-
+.source {
     display: inline-block;
 
-    padding: 5px 9px;
+    padding: 6px 9px;
 
     border-radius: 6px;
+
+    font-size: 12px;
+
+    font-weight: bold;
 
     background: #eef2ff;
 
     color: #3730a3;
-
-    font-weight: bold;
-
-    font-size: 12px;
 }
 
 
-/* ========================================
-   TIMER
-======================================== */
+/* TIMER */
 
 .timer {
-
     font-weight: bold;
-
     font-size: 16px;
 }
 
-
 .timer.warning {
-
     color: #d97706;
 }
 
-
 .timer.danger {
-
     color: #dc2626;
 }
 
 
-/* ========================================
-   MAP
-======================================== */
+/* MAP */
 
 .map-link {
-
     display: inline-block;
 
     text-decoration: none;
 
     background: #dbeafe;
-
     color: #1d4ed8;
 
     padding: 6px 10px;
@@ -327,19 +220,14 @@ td {
     font-weight: bold;
 }
 
-
 .map-link:hover {
-
     background: #bfdbfe;
 }
 
 
-/* ========================================
-   STATUS
-======================================== */
+/* STATUS */
 
 .status {
-
     display: inline-block;
 
     padding: 6px 10px;
@@ -351,45 +239,30 @@ td {
     font-weight: bold;
 }
 
-
 .status.preparing {
-
     background: #fef3c7;
-
     color: #92400e;
 }
 
-
 .status.ready {
-
     background: #dcfce7;
-
     color: #166534;
 }
 
-
 .status.completed {
-
     background: #e5e7eb;
-
     color: #374151;
 }
 
 
-/* ========================================
-   ACTIONS
-======================================== */
+/* ACTIONS */
 
 .actions {
-
     display: flex;
-
     gap: 6px;
 }
 
-
 .action-btn {
-
     border: none;
 
     padding: 7px 9px;
@@ -401,51 +274,25 @@ td {
     font-size: 13px;
 }
 
-
-.move-btn {
-
-    background: #f3f4f6;
-
-    color: #374151;
-}
-
-
-.move-btn:hover {
-
-    background: #e5e7eb;
-}
-
-
 .edit-btn {
-
     background: #dbeafe;
-
     color: #1d4ed8;
 }
 
-
 .complete-btn {
-
     background: #dcfce7;
-
     color: #166534;
 }
 
-
 .delete-btn {
-
     background: #fee2e2;
-
     color: #991b1b;
 }
 
 
-/* ========================================
-   EMPTY
-======================================== */
+/* EMPTY */
 
 .empty-state {
-
     text-align: center;
 
     padding: 50px;
@@ -454,20 +301,16 @@ td {
 }
 
 
-/* ========================================
-   MODAL
-======================================== */
+/* MODAL */
 
 .modal {
-
     display: none;
 
     position: fixed;
 
     inset: 0;
 
-    background:
-        rgba(0, 0, 0, .5);
+    background: rgba(0, 0, 0, .5);
 
     justify-content: center;
 
@@ -478,56 +321,40 @@ td {
     z-index: 1000;
 }
 
-
 .modal.show {
-
     display: flex;
 }
 
-
 .modal-content,
 .confirm-content {
-
     background: white;
 
     width: 100%;
 
-    max-width: 650px;
-
-    max-height: 90vh;
-
-    overflow-y: auto;
+    max-width: 550px;
 
     border-radius: 12px;
 
     padding: 25px;
 
     box-shadow:
-        0 10px 40px
-        rgba(0, 0, 0, .2);
+        0 10px 40px rgba(0, 0, 0, .2);
 }
 
-
 .modal-header {
-
     display: flex;
 
     justify-content: space-between;
-
     align-items: center;
 
     margin-bottom: 20px;
 }
 
-
 .modal-header h2 {
-
     margin: 0;
 }
 
-
 .close-btn {
-
     border: none;
 
     background: none;
@@ -539,162 +366,23 @@ td {
     color: #6b7280;
 }
 
-
-/* ========================================
-   RAW TEXT
-======================================== */
-
-.raw-text {
-
-    min-height: 180px;
-
-    font-family:
-        Arial,
-        sans-serif;
-
-    line-height: 1.5;
-}
-
-
-.parse-btn {
-
-    width: 100%;
-
-    border: none;
-
-    background: #111827;
-
-    color: white;
-
-    padding: 12px;
-
-    border-radius: 7px;
-
-    cursor: pointer;
-
-    font-size: 14px;
-
-    font-weight: bold;
+label {
+    display: block;
 
     margin-bottom: 15px;
-}
-
-
-.parse-btn:hover {
-
-    background: #1f2937;
-}
-
-
-.parse-message {
-
-    min-height: 20px;
-
-    margin-bottom: 10px;
 
     font-size: 13px;
 
     font-weight: bold;
 }
 
-
-.parse-message.success {
-
-    color: #166534;
+label input,
+label textarea,
+label select {
+    margin-top: 6px;
 }
-
-
-.parse-message.error {
-
-    color: #dc2626;
-}
-
-
-/* ========================================
-   PREPARATION TIME
-======================================== */
-
-.preparation-box {
-
-    margin-top: 10px;
-
-    padding: 15px;
-
-    border:
-        1px solid
-        #e5e7eb;
-
-    border-radius: 8px;
-
-    background: #f9fafb;
-}
-
-
-.preparation-title {
-
-    font-size: 14px;
-
-    font-weight: bold;
-
-    margin-bottom: 12px;
-}
-
-
-.time-buttons {
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(5, 1fr);
-
-    gap: 8px;
-}
-
-
-.time-btn {
-
-    border:
-        1px solid
-        #d1d5db;
-
-    background: white;
-
-    padding: 10px 5px;
-
-    border-radius: 7px;
-
-    cursor: pointer;
-
-    font-size: 13px;
-
-    font-weight: bold;
-}
-
-
-.time-btn:hover {
-
-    border-color: #2563eb;
-
-    color: #2563eb;
-}
-
-
-.time-btn.selected {
-
-    background: #2563eb;
-
-    color: white;
-
-    border-color: #2563eb;
-}
-
-
-/* ========================================
-   MODAL ACTIONS
-======================================== */
 
 .modal-actions {
-
     display: flex;
 
     justify-content: flex-end;
@@ -704,10 +392,8 @@ td {
     margin-top: 20px;
 }
 
-
 .cancel-btn,
 .save-btn {
-
     border: none;
 
     padding: 11px 18px;
@@ -717,41 +403,30 @@ td {
     cursor: pointer;
 }
 
-
 .cancel-btn {
-
     background: #e5e7eb;
-
     color: #374151;
 }
 
-
 .save-btn {
-
     background: #2563eb;
-
     color: white;
 }
 
 
-/* ========================================
-   MOBILE
-======================================== */
+/* MOBILE */
 
 @media (max-width: 800px) {
 
     .topbar {
-
         flex-direction: column;
 
         align-items: stretch;
 
         gap: 15px;
     }
-
 
     .section-header {
-
         flex-direction: column;
 
         align-items: stretch;
@@ -759,51 +434,18 @@ td {
         gap: 15px;
     }
 
-
     .section-header input {
-
         width: 100%;
     }
-
-
-    .time-buttons {
-
-        grid-template-columns:
-            repeat(3, 1fr);
-    }
 }
-
 
 @media (max-width: 500px) {
 
     .container {
-
-        padding: 10px;
+        padding: 12px;
     }
-
 
     .topbar {
-
         padding: 15px;
-    }
-
-
-    .topbar h1 {
-
-        font-size: 20px;
-    }
-
-
-    .modal-content,
-    .confirm-content {
-
-        padding: 18px;
-    }
-
-
-    .time-buttons {
-
-        grid-template-columns:
-            1fr 1fr;
     }
 }
