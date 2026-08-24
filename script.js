@@ -921,10 +921,12 @@ function renderOrders() {
 
                 <td>
                     <strong>
-                        #${escapeHTML(
-                            order.orderNumber
-                        )}
-                    </strong>
+    ${
+        order.orderNumber
+            ? "#" + escapeHTML(order.orderNumber)
+            : "—"
+    }
+</strong>
                 </td>
 
 
