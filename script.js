@@ -3,11 +3,9 @@ let orders =
         localStorage.getItem("orders")
     ) || [];
 
-
 let editingOrderId = null;
 
 let pendingEdit = null;
-
 
 
 // ========================================
@@ -22,7 +20,6 @@ function saveOrders() {
     );
 
 }
-
 
 
 // ========================================
@@ -44,8 +41,8 @@ function openOrderModal() {
     document
         .getElementById("orderModal")
         .classList.add("show");
-}
 
+}
 
 
 // ========================================
@@ -63,9 +60,8 @@ function closeOrderModal() {
 }
 
 
-
 // ========================================
-// ԱՎԵԼԱՑՆԵԼ / ՓՈՓՈԽԵԼ
+// ԱՎԵԼԱՑՆԵԼ / ՓՈՓՈԽԵԼ ՊԱՏՎԵՐԸ
 // ========================================
 
 document
@@ -120,7 +116,6 @@ document
                     .trim();
 
 
-
             // ========================================
             // ՆՈՐ ՊԱՏՎԵՐ
             // ========================================
@@ -148,7 +143,6 @@ document
 
                     note,
 
-                    // Timer-ի իրական մեկնարկի պահը
                     timerStartedAt:
                         now,
 
@@ -179,9 +173,8 @@ document
             }
 
 
-
             // ========================================
-            // ՓՈՓՈԽԵԼ ՊԱՏՎԵՐ
+            // ԳՏՆԵԼ ՊԱՏՎԵՐԸ
             // ========================================
 
             const order =
@@ -192,7 +185,8 @@ document
                 );
 
 
-            if (!order) return;
+            if (!order)
+                return;
 
 
             const oldPreparationTime =
@@ -204,6 +198,9 @@ document
                 preparationTime;
 
 
+            // ========================================
+            // ԹԱՐՄԱՑՆԵԼ ՏՎՅԱԼՆԵՐԸ
+            // ========================================
 
             order.createdTime =
                 createdTime;
@@ -224,8 +221,9 @@ document
                 note;
 
 
-
-            // Եթե փոխվել է պատրաստման ժամանակը
+            // ========================================
+            // ԵԹԵ ՓՈԽՎԵԼ Է ՊԱՏՐԱՍՏՄԱՆ ԺԱՄԱՆԱԿԸ
+            // ========================================
 
             if (
                 changedPreparationTime
@@ -264,9 +262,8 @@ document
     );
 
 
-
 // ========================================
-// ՓՈՓՈԽՄԱՆ ՀԱՍՏԱՏՈՒՄ
+// ԺԱՄԱՉԱՓԻ ՓՈՓՈԽՄԱՆ ՀԱՍՏԱՏՈՒՄ
 // ========================================
 
 function finishEdit(
@@ -284,7 +281,6 @@ function finishEdit(
     const newTime =
         pendingEdit
             .newPreparationTime;
-
 
 
     if (restartTimer) {
@@ -310,7 +306,6 @@ function finishEdit(
     }
 
 
-
     saveOrders();
 
 
@@ -333,7 +328,6 @@ function finishEdit(
     renderOrders();
 
 }
-
 
 
 // ========================================
@@ -365,7 +359,6 @@ function editOrder(id) {
         "Փոփոխել պատվերը";
 
 
-
     document
         .getElementById(
             "createdTime"
@@ -379,7 +372,7 @@ function editOrder(id) {
             "address"
         )
         .value =
-        order.address;
+        order.address || "";
 
 
     document
@@ -387,7 +380,7 @@ function editOrder(id) {
             "amount"
         )
         .value =
-        order.amount;
+        order.amount || "";
 
 
     document
@@ -395,7 +388,7 @@ function editOrder(id) {
             "preparationTime"
         )
         .value =
-        order.preparationTime;
+        order.preparationTime || "";
 
 
     document
@@ -425,7 +418,6 @@ function editOrder(id) {
 }
 
 
-
 // ========================================
 // ԱՎԱՐՏԵԼ ՊԱՏՎԵՐԸ
 // ========================================
@@ -452,7 +444,6 @@ function completeOrder(id) {
     renderOrders();
 
 }
-
 
 
 // ========================================
@@ -496,7 +487,6 @@ function deleteOrder(id) {
 }
 
 
-
 // ========================================
 // ՄՆԱՑԱԾ ԺԱՄԱՆԱԿ
 // ========================================
@@ -516,7 +506,6 @@ function getRemainingTime(order) {
     const remaining =
         order.readyAt -
         Date.now();
-
 
 
     if (remaining <= 0) {
@@ -542,7 +531,6 @@ function getRemainingTime(order) {
     return remaining;
 
 }
-
 
 
 // ========================================
@@ -585,9 +573,8 @@ function formatTime(
 }
 
 
-
 // ========================================
-// YANDEX MAP
+// YANDEX MAP LINK
 // ========================================
 
 function getYandexMapLink(
@@ -595,7 +582,9 @@ function getYandexMapLink(
 ) {
 
     if (!coordinates) {
+
         return null;
+
     }
 
 
@@ -608,8 +597,12 @@ function getYandexMapLink(
             );
 
 
-    if (parts.length !== 2) {
+    if (
+        parts.length !== 2
+    ) {
+
         return null;
+
     }
 
 
@@ -632,23 +625,38 @@ function getYandexMapLink(
 
 
     return (
-        "https://yandex.com/maps/?ll=" +
+        "https://yandex.com/maps/"
+
+        +
+
+        "?ll="
+
+        +
+
         encodeURIComponent(
             longitude +
             "," +
             latitude
-        ) +
-        "&pt=" +
+        )
+
+        +
+
+        "&pt="
+
+        +
+
         encodeURIComponent(
             longitude +
             "," +
             latitude
-        ) +
+        )
+
+        +
+
         "&z=17"
     );
 
 }
-
 
 
 // ========================================
@@ -682,20 +690,18 @@ function renderOrders() {
     table.innerHTML = "";
 
 
-
     const filteredOrders =
         orders.filter(
             order => {
 
                 return String(
-                    order.address
+                    order.address || ""
                 )
                     .toLowerCase()
                     .includes(search);
 
             }
         );
-
 
 
     if (
@@ -713,7 +719,6 @@ function renderOrders() {
     }
 
 
-
     filteredOrders.forEach(
         order => {
 
@@ -723,10 +728,13 @@ function renderOrders() {
                 );
 
 
+            // ========================================
+            // ԿԱՐԳԱՎԻՃԱԿ
+            // ========================================
+
             let statusText;
 
             let statusClass;
-
 
 
             if (
@@ -766,13 +774,11 @@ function renderOrders() {
             }
 
 
-
             // ========================================
             // TIMER
             // ========================================
 
             let timerHTML;
-
 
 
             if (
@@ -835,7 +841,6 @@ function renderOrders() {
             }
 
 
-
             // ========================================
             // MAP
             // ========================================
@@ -863,9 +868,8 @@ function renderOrders() {
                     "—";
 
 
-
             // ========================================
-            // ROW
+            // ՍՏԵՂԾԵԼ ROW
             // ========================================
 
             const row =
@@ -885,14 +889,14 @@ function renderOrders() {
 
                 <td>
                     ${escapeHTML(
-                        order.address
+                        order.address || "—"
                     )}
                 </td>
 
 
                 <td>
                     ${Number(
-                        order.amount
+                        order.amount || 0
                     ).toLocaleString(
                         "hy-AM"
                     )}
@@ -901,7 +905,9 @@ function renderOrders() {
 
 
                 <td>
-                    ${order.preparationTime}
+                    ${Number(
+                        order.preparationTime || 0
+                    )}
                     րոպե
                 </td>
 
@@ -1009,11 +1015,9 @@ function renderOrders() {
     );
 
 
-
     updateStats();
 
 }
-
 
 
 // ========================================
@@ -1057,7 +1061,6 @@ function updateStats() {
         );
 
 
-
     document.getElementById(
         "totalOrders"
     ).textContent =
@@ -1086,7 +1089,6 @@ function updateStats() {
         " ֏";
 
 }
-
 
 
 // ========================================
@@ -1125,7 +1127,6 @@ function escapeHTML(value) {
 }
 
 
-
 // ========================================
 // ԱՎՏՈՄԱՏ ԹԱՐՄԱՑՈՒՄ
 // ========================================
@@ -1138,7 +1139,6 @@ setInterval(
     },
     1000
 );
-
 
 
 // ========================================
