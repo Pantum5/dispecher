@@ -291,9 +291,6 @@ small {
 
     font-weight: bold;
 
-    transition:
-        .15s ease;
-
 }
 
 
@@ -319,7 +316,7 @@ small {
 
 
 /* =========================
-   SOURCE IN TABLE
+   SOURCE BADGE
 ========================= */
 
 .source-badge {
@@ -524,7 +521,9 @@ th {
 
     display: flex;
 
-    gap: 6px;
+    align-items: center;
+
+    gap: 5px;
 
 }
 
@@ -540,6 +539,35 @@ th {
     cursor: pointer;
 
     font-size: 13px;
+
+}
+
+
+.action-btn:hover {
+
+    opacity: .8;
+
+}
+
+
+.move-btn {
+
+    background: #f3f4f6;
+
+    color: #374151;
+
+    font-size: 15px;
+
+    font-weight: bold;
+
+}
+
+
+.move-btn:disabled {
+
+    opacity: .35;
+
+    cursor: not-allowed;
 
 }
 
