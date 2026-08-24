@@ -1,111 +1,278 @@
-let orders = JSON.parse(localStorage.getItem("orders")) || [];
+let orders =
+    JSON.parse(
+        localStorage.getItem("orders")
+    ) || [];
+
 
 let editingOrderId = null;
+
 let pendingEdit = null;
 
 
-// ================================
-// SAVE DATA
-// ================================
+
+// ========================================
+// ՊԱՀՊԱՆԵԼ ՏՎՅԱԼՆԵՐԸ
+// ========================================
 
 function saveOrders() {
-    localStorage.setItem("orders", JSON.stringify(orders));
+
+    localStorage.setItem(
+        "orders",
+        JSON.stringify(orders)
+    );
+
 }
 
 
-// ================================
-// OPEN NEW ORDER
-// ================================
+
+// ========================================
+// ՆՈՐ ՊԱՏՎԵՐ
+// ========================================
 
 function openOrderModal() {
 
     editingOrderId = null;
 
-    document.getElementById("modalTitle").textContent = "Նոր պատվեր";
+    document.getElementById(
+        "modalTitle"
+    ).textContent = "Նոր պատվեր";
 
-    document.getElementById("orderForm").reset();
 
-    document.getElementById("orderId").value = "";
+    document
+        .getElementById("orderForm")
+        .reset();
 
-    document.getElementById("timerWarning").classList.add("hidden");
 
-    document.getElementById("orderModal").classList.add("show");
+    document.getElementById(
+        "orderId"
+    ).value = "";
+
+
+    document
+        .getElementById("orderModal")
+        .classList.add("show");
+
 }
 
 
-// ================================
-// CLOSE MODAL
-// ================================
+
+// ========================================
+// ՓԱԿԵԼ ՊԱՏՈՒՀԱՆԸ
+// ========================================
 
 function closeOrderModal() {
 
-    document.getElementById("orderModal").classList.remove("show");
+    document
+        .getElementById("orderModal")
+        .classList.remove("show");
 
     editingOrderId = null;
+
 }
 
 
-// ================================
-// ADD / EDIT ORDER
-// ================================
+
+// ========================================
+// ԱՎԵԼԱՑՆԵԼ / ՓՈՓՈԽԵԼ
+// ========================================
 
 document
     .getElementById("orderForm")
-    .addEventListener("submit", function(event) {
+    .addEventListener(
+        "submit",
+        function(event) {
 
-        event.preventDefault();
-
-        const orderNumber =
-            document.getElementById("orderNumber").value.trim();
-
-        const address =
-            document.getElementById("address").value.trim();
-
-        const amount =
-            Number(document.getElementById("amount").value);
-
-        const preparationTime =
-            Number(document.getElementById("preparationTime").value);
-
-        const latitude =
-            document.getElementById("latitude").value;
-
-        const longitude =
-            document.getElementById("longitude").value;
-
-        const note =
-            document.getElementById("note").value.trim();
+            event.preventDefault();
 
 
-        // NEW ORDER
-        if (!editingOrderId) {
-
-            const now = Date.now();
-
-            const newOrder = {
-
-                id: crypto.randomUUID(),
-
-                orderNumber,
-                address,
-                amount,
-                preparationTime,
-
-                latitude,
-                longitude,
-
-                note,
-
-                createdAt: now,
-
-                readyAt:
-                    now + preparationTime * 60 * 1000,
-
-                status: "preparing"
-            };
+            const orderNumber =
+                document
+                    .getElementById(
+                        "orderNumber"
+                    )
+                    .value
+                    .trim();
 
 
-            orders.push(newOrder);
+            const address =
+                document
+                    .getElementById(
+                        "address"
+                    )
+                    .value
+                    .trim();
+
+
+            const amount =
+                Number(
+                    document
+                        .getElementById(
+                            "amount"
+                        )
+                        .value
+                );
+
+
+            const preparationTime =
+                Number(
+                    document
+                        .getElementById(
+                            "preparationTime"
+                        )
+                        .value
+                );
+
+
+            const coordinates =
+                document
+                    .getElementById(
+                        "coordinates"
+                    )
+                    .value
+                    .trim();
+
+
+            const note =
+                document
+                    .getElementById(
+                        "note"
+                    )
+                    .value
+                    .trim();
+
+
+
+            // ========================================
+            // ՆՈՐ ՊԱՏՎԵՐ
+            // ========================================
+
+            if (!editingOrderId) {
+
+                const now =
+                    Date.now();
+
+
+                const newOrder = {
+
+                    id:
+                        crypto.randomUUID(),
+
+                    orderNumber,
+
+                    address,
+
+                    amount,
+
+                    preparationTime,
+
+                    coordinates,
+
+                    note,
+
+                    createdAt:
+                        now,
+
+                    readyAt:
+                        now +
+                        preparationTime *
+                        60 *
+                        1000,
+
+                    status:
+                        "preparing"
+
+                };
+
+
+                orders.push(
+                    newOrder
+                );
+
+
+                saveOrders();
+
+                closeOrderModal();
+
+                renderOrders();
+
+                return;
+            }
+
+
+
+            // ========================================
+            // ՓՈՓՈԽԵԼ ՊԱՏՎԵՐ
+            // ========================================
+
+            const order =
+                orders.find(
+                    o =>
+                        o.id ===
+                        editingOrderId
+                );
+
+
+            if (!order) return;
+
+
+            const oldPreparationTime =
+                order.preparationTime;
+
+
+            const changedPreparationTime =
+                oldPreparationTime !==
+                preparationTime;
+
+
+
+            order.orderNumber =
+                orderNumber;
+
+            order.address =
+                address;
+
+            order.amount =
+                amount;
+
+            order.preparationTime =
+                preparationTime;
+
+            order.coordinates =
+                coordinates;
+
+            order.note =
+                note;
+
+
+
+            // Եթե փոխվել է պատրաստման ժամանակը
+
+            if (
+                changedPreparationTime
+            ) {
+
+                pendingEdit = {
+
+                    order,
+
+                    newPreparationTime:
+                        preparationTime
+
+                };
+
+
+                document
+                    .getElementById(
+                        "confirmModal"
+                    )
+                    .classList.add(
+                        "show"
+                    );
+
+
+                return;
+            }
+
 
             saveOrders();
 
@@ -113,183 +280,224 @@ document
 
             renderOrders();
 
-            return;
         }
+    );
 
 
-        // EDIT ORDER
 
-        const order =
-            orders.find(o => o.id === editingOrderId);
+// ========================================
+// ՓՈՓՈԽՄԱՆ ՀԱՍՏԱՏՈՒՄ
+// ========================================
 
-        if (!order) return;
+function finishEdit(
+    restartTimer
+) {
 
-
-        const oldPreparationTime =
-            order.preparationTime;
-
-
-        const changedPreparationTime =
-            oldPreparationTime !== preparationTime;
+    if (!pendingEdit)
+        return;
 
 
-        // Save normal changes first
-
-        order.orderNumber = orderNumber;
-        order.address = address;
-        order.amount = amount;
-        order.preparationTime = preparationTime;
-        order.latitude = latitude;
-        order.longitude = longitude;
-        order.note = note;
+    const order =
+        pendingEdit.order;
 
 
-        // If preparation time changed
-        if (changedPreparationTime) {
+    const newTime =
+        pendingEdit
+            .newPreparationTime;
 
-            pendingEdit = {
-                order,
-                newPreparationTime: preparationTime
-            };
-
-            document
-                .getElementById("confirmModal")
-                .classList.add("show");
-
-            return;
-        }
-
-
-        saveOrders();
-
-        closeOrderModal();
-
-        renderOrders();
-
-    });
-
-
-// ================================
-// FINISH EDIT
-// ================================
-
-function finishEdit(restartTimer) {
-
-    if (!pendingEdit) return;
-
-    const order = pendingEdit.order;
-
-    const newTime = pendingEdit.newPreparationTime;
 
 
     if (restartTimer) {
 
-        const now = Date.now();
+        const now =
+            Date.now();
 
-        order.createdAt = now;
+
+        order.createdAt =
+            now;
+
 
         order.readyAt =
-            now + newTime * 60 * 1000;
+            now +
+            newTime *
+            60 *
+            1000;
 
-        order.status = "preparing";
+
+        order.status =
+            "preparing";
+
     }
+
 
 
     saveOrders();
 
+
     document
-        .getElementById("confirmModal")
-        .classList.remove("show");
+        .getElementById(
+            "confirmModal"
+        )
+        .classList.remove(
+            "show"
+        );
+
 
     closeOrderModal();
 
-    pendingEdit = null;
+
+    pendingEdit =
+        null;
+
 
     renderOrders();
+
 }
 
 
-// ================================
-// EDIT ORDER
-// ================================
+
+// ========================================
+// ԽՄԲԱԳՐԵԼ ՊԱՏՎԵՐԸ
+// ========================================
 
 function editOrder(id) {
 
     const order =
-        orders.find(o => o.id === id);
-
-    if (!order) return;
-
-
-    editingOrderId = id;
-
-    document.getElementById("modalTitle")
-        .textContent = "Փոփոխել պատվերը";
+        orders.find(
+            o =>
+                o.id === id
+        );
 
 
-    document.getElementById("orderId").value =
+    if (!order)
+        return;
+
+
+    editingOrderId =
+        id;
+
+
+    document
+        .getElementById(
+            "modalTitle"
+        )
+        .textContent =
+        "Փոփոխել պատվերը";
+
+
+
+    document
+        .getElementById(
+            "orderId"
+        )
+        .value =
         order.id;
 
-    document.getElementById("orderNumber").value =
+
+    document
+        .getElementById(
+            "orderNumber"
+        )
+        .value =
         order.orderNumber;
 
-    document.getElementById("address").value =
+
+    document
+        .getElementById(
+            "address"
+        )
+        .value =
         order.address;
 
-    document.getElementById("amount").value =
+
+    document
+        .getElementById(
+            "amount"
+        )
+        .value =
         order.amount;
 
-    document.getElementById("preparationTime").value =
+
+    document
+        .getElementById(
+            "preparationTime"
+        )
+        .value =
         order.preparationTime;
 
-    document.getElementById("latitude").value =
-        order.latitude || "";
 
-    document.getElementById("longitude").value =
-        order.longitude || "";
+    document
+        .getElementById(
+            "coordinates"
+        )
+        .value =
+        order.coordinates || "";
 
-    document.getElementById("note").value =
+
+    document
+        .getElementById(
+            "note"
+        )
+        .value =
         order.note || "";
 
 
-    document.getElementById("timerWarning")
-        .classList.add("hidden");
+    document
+        .getElementById(
+            "orderModal"
+        )
+        .classList.add(
+            "show"
+        );
 
-    document.getElementById("orderModal")
-        .classList.add("show");
 }
 
 
-// ================================
-// COMPLETE ORDER
-// ================================
+
+// ========================================
+// ԱՎԱՐՏԵԼ ՊԱՏՎԵՐԸ
+// ========================================
 
 function completeOrder(id) {
 
     const order =
-        orders.find(o => o.id === id);
+        orders.find(
+            o =>
+                o.id === id
+        );
 
-    if (!order) return;
+
+    if (!order)
+        return;
 
 
-    order.status = "completed";
+    order.status =
+        "completed";
+
 
     saveOrders();
 
     renderOrders();
+
 }
 
 
-// ================================
-// DELETE ORDER
-// ================================
+
+// ========================================
+// ՋՆՋԵԼ ՊԱՏՎԵՐԸ
+// ========================================
 
 function deleteOrder(id) {
 
     const order =
-        orders.find(o => o.id === id);
+        orders.find(
+            o =>
+                o.id === id
+        );
 
-    if (!order) return;
+
+    if (!order)
+        return;
 
 
     const confirmed =
@@ -298,82 +506,137 @@ function deleteOrder(id) {
         );
 
 
-    if (!confirmed) return;
+    if (!confirmed)
+        return;
 
 
     orders =
-        orders.filter(o => o.id !== id);
+        orders.filter(
+            o =>
+                o.id !== id
+        );
+
 
     saveOrders();
 
     renderOrders();
+
 }
 
 
-// ================================
-// TIMER
-// ================================
+
+// ========================================
+// ՄՆԱՑԱԾ ԺԱՄԱՆԱԿ
+// ========================================
 
 function getRemainingTime(order) {
 
-    if (order.status === "completed") {
+    if (
+        order.status ===
+        "completed"
+    ) {
+
         return 0;
+
     }
 
+
     const remaining =
-        order.readyAt - Date.now();
+        order.readyAt -
+        Date.now();
+
+
 
     if (remaining <= 0) {
 
-        if (order.status === "preparing") {
+        if (
+            order.status ===
+            "preparing"
+        ) {
 
-            order.status = "ready";
+            order.status =
+                "ready";
 
             saveOrders();
+
         }
 
+
         return 0;
+
     }
 
 
     return remaining;
+
 }
 
 
-function formatTime(milliseconds) {
+
+// ========================================
+// ԺԱՄԱՆԱԿԻ ՁԵՎԱՉԱՓ
+// ========================================
+
+function formatTime(
+    milliseconds
+) {
 
     const totalSeconds =
-        Math.ceil(milliseconds / 1000);
+        Math.ceil(
+            milliseconds /
+            1000
+        );
+
 
     const minutes =
-        Math.floor(totalSeconds / 60);
+        Math.floor(
+            totalSeconds /
+            60
+        );
+
 
     const seconds =
-        totalSeconds % 60;
+        totalSeconds %
+        60;
 
 
     return (
-        String(minutes).padStart(2, "0")
-        + ":" +
-        String(seconds).padStart(2, "0")
+        String(minutes)
+            .padStart(2, "0")
+        +
+        ":"
+        +
+        String(seconds)
+            .padStart(2, "0")
     );
+
 }
 
 
-// ================================
-// RENDER ORDERS
-// ================================
+
+// ========================================
+// ՊԱՏՎԵՐՆԵՐԻ ՑՈՒՑԱԴՐՈՒՄ
+// ========================================
 
 function renderOrders() {
 
     const table =
-        document.getElementById("ordersTable");
+        document.getElementById(
+            "ordersTable"
+        );
+
 
     const empty =
-        document.getElementById("emptyState");
+        document.getElementById(
+            "emptyState"
+        );
+
 
     const search =
-        document.getElementById("searchInput")
+        document
+            .getElementById(
+                "searchInput"
+            )
             .value
             .toLowerCase()
             .trim();
@@ -382,244 +645,450 @@ function renderOrders() {
     table.innerHTML = "";
 
 
+
     const filteredOrders =
-        orders.filter(order => {
+        orders.filter(
+            order => {
 
-            return (
-                String(order.orderNumber)
-                    .toLowerCase()
-                    .includes(search)
-                ||
-                order.address
-                    .toLowerCase()
-                    .includes(search)
-            );
+                return (
 
-        });
+                    String(
+                        order.orderNumber
+                    )
+                        .toLowerCase()
+                        .includes(search)
+
+                    ||
+
+                    order.address
+                        .toLowerCase()
+                        .includes(search)
+
+                );
+
+            }
+        );
 
 
-    if (filteredOrders.length === 0) {
 
-        empty.style.display = "block";
+    if (
+        filteredOrders.length === 0
+    ) {
+
+        empty.style.display =
+            "block";
 
     } else {
 
-        empty.style.display = "none";
+        empty.style.display =
+            "none";
+
     }
 
 
-    filteredOrders.forEach(order => {
 
-        const remaining =
-            getRemainingTime(order);
+    filteredOrders.forEach(
+        order => {
 
-
-        let statusText;
-        let statusClass;
-
-
-        if (order.status === "completed") {
-
-            statusText = "Ավարտված";
-            statusClass = "completed";
-
-        } else if (order.status === "ready") {
-
-            statusText = "Պատրաստ է";
-            statusClass = "ready";
-
-        } else {
-
-            statusText = "Պատրաստվում է";
-            statusClass = "preparing";
-        }
+            const remaining =
+                getRemainingTime(
+                    order
+                );
 
 
-        let timerHTML;
+            let statusText;
+
+            let statusClass;
 
 
-        if (order.status === "completed") {
 
-            timerHTML = "—";
+            if (
+                order.status ===
+                "completed"
+            ) {
 
-        } else if (order.status === "ready") {
+                statusText =
+                    "Ավարտված";
 
-            timerHTML =
-                `<span class="timer danger">
-                    00:00
-                </span>`;
+                statusClass =
+                    "completed";
 
-        } else {
-
-            let timerClass = "timer";
-
-            if (remaining <= 5 * 60 * 1000) {
-                timerClass += " warning";
             }
 
-            if (remaining <= 60 * 1000) {
-                timerClass += " danger";
+            else if (
+                order.status ===
+                "ready"
+            ) {
+
+                statusText =
+                    "Պատրաստ է";
+
+                statusClass =
+                    "ready";
+
+            }
+
+            else {
+
+                statusText =
+                    "Պատրաստվում է";
+
+                statusClass =
+                    "preparing";
+
             }
 
 
-            timerHTML =
-                `<span class="${timerClass}">
-                    ${formatTime(remaining)}
-                </span>`;
-        }
+
+            let timerHTML;
 
 
-        const row =
-            document.createElement("tr");
+
+            if (
+                order.status ===
+                "completed"
+            ) {
+
+                timerHTML =
+                    "—";
+
+            }
+
+            else if (
+                order.status ===
+                "ready"
+            ) {
+
+                timerHTML = `
+                    <span class="timer danger">
+                        00:00
+                    </span>
+                `;
+
+            }
+
+            else {
+
+                let timerClass =
+                    "timer";
 
 
-        row.innerHTML = `
+                if (
+                    remaining <=
+                    5 * 60 * 1000
+                ) {
 
-            <td>
-                <strong>#${escapeHTML(order.orderNumber)}</strong>
-            </td>
+                    timerClass +=
+                        " warning";
 
-            <td>
-                ${escapeHTML(order.address)}
-            </td>
+                }
 
-            <td>
-                ${Number(order.amount).toLocaleString("hy-AM")} ֏
-            </td>
 
-            <td>
-                ${order.preparationTime} րոպե
-            </td>
+                if (
+                    remaining <=
+                    60 * 1000
+                ) {
 
-            <td>
-                ${timerHTML}
-            </td>
+                    timerClass +=
+                        " danger";
 
-            <td>
-                <span class="status ${statusClass}">
-                    ${statusText}
-                </span>
-            </td>
+                }
 
-            <td>
 
-                <div class="actions">
+                timerHTML = `
+                    <span class="${timerClass}">
+                        ${formatTime(remaining)}
+                    </span>
+                `;
 
-                    <button
-                        class="action-btn edit-btn"
-                        onclick="editOrder('${order.id}')"
-                        title="Փոփոխել"
-                    >
-                        ✏️
-                    </button>
+            }
 
+
+
+            const row =
+                document.createElement(
+                    "tr"
+                );
+
+
+
+            row.innerHTML = `
+
+                <td>
+                    <strong>
+                        #${escapeHTML(
+                            order.orderNumber
+                        )}
+                    </strong>
+                </td>
+
+
+                <td>
+                    ${escapeHTML(
+                        order.address
+                    )}
+                </td>
+
+
+                <td>
+                    ${Number(
+                        order.amount
+                    ).toLocaleString(
+                        "hy-AM"
+                    )}
+                    ֏
+                </td>
+
+
+                <td>
+                    ${order.preparationTime}
+                    րոպե
+                </td>
+
+
+                <td>
+                    ${timerHTML}
+                </td>
+
+
+                <td>
                     ${
-                        order.status !== "completed"
-                        ?
-                        `
-                        <button
-                            class="action-btn complete-btn"
-                            onclick="completeOrder('${order.id}')"
-                            title="Ավարտել"
-                        >
-                            ✓
-                        </button>
-                        `
-                        :
-                        ""
+                        order.coordinates
+                            ?
+                            escapeHTML(
+                                order.coordinates
+                            )
+                            :
+                            "—"
                     }
+                </td>
 
-                    <button
-                        class="action-btn delete-btn"
-                        onclick="deleteOrder('${order.id}')"
-                        title="Ջնջել"
+
+                <td>
+                    <span
+                        class="
+                            status
+                            ${statusClass}
+                        "
                     >
-                        🗑️
-                    </button>
-
-                </div>
-
-            </td>
-        `;
+                        ${statusText}
+                    </span>
+                </td>
 
 
-        table.appendChild(row);
+                <td>
 
-    });
+                    <div class="actions">
+
+                        <button
+                            class="
+                                action-btn
+                                edit-btn
+                            "
+                            onclick="
+                                editOrder(
+                                    '${order.id}'
+                                )
+                            "
+                            title="Փոփոխել"
+                        >
+                            ✏️
+                        </button>
+
+
+                        ${
+                            order.status !==
+                            "completed"
+
+                            ?
+
+                            `
+                            <button
+                                class="
+                                    action-btn
+                                    complete-btn
+                                "
+                                onclick="
+                                    completeOrder(
+                                        '${order.id}'
+                                    )
+                                "
+                                title="Ավարտել"
+                            >
+                                ✓
+                            </button>
+                            `
+
+                            :
+
+                            ""
+                        }
+
+
+                        <button
+                            class="
+                                action-btn
+                                delete-btn
+                            "
+                            onclick="
+                                deleteOrder(
+                                    '${order.id}'
+                                )
+                            "
+                            title="Ջնջել"
+                        >
+                            🗑️
+                        </button>
+
+                    </div>
+
+                </td>
+
+            `;
+
+
+            table.appendChild(
+                row
+            );
+
+        }
+    );
+
 
 
     updateStats();
+
 }
 
 
-// ================================
-// STATISTICS
-// ================================
+
+// ========================================
+// ՎԻՃԱԿԱԳՐՈՒԹՅՈՒՆ
+// ========================================
 
 function updateStats() {
 
     const total =
         orders.length;
 
+
     const active =
         orders.filter(
-            o => o.status === "preparing"
+            o =>
+                o.status ===
+                "preparing"
         ).length;
+
 
     const ready =
         orders.filter(
-            o => o.status === "ready"
+            o =>
+                o.status ===
+                "ready"
         ).length;
+
 
     const amount =
         orders.reduce(
-            (sum, order) =>
-                sum + Number(order.amount || 0),
+            (
+                sum,
+                order
+            ) =>
+                sum +
+                Number(
+                    order.amount ||
+                    0
+                ),
             0
         );
 
 
-    document.getElementById("totalOrders")
-        .textContent = total;
 
-    document.getElementById("activeOrders")
-        .textContent = active;
+    document.getElementById(
+        "totalOrders"
+    ).textContent =
+        total;
 
-    document.getElementById("readyOrders")
-        .textContent = ready;
 
-    document.getElementById("totalAmount")
-        .textContent =
-            amount.toLocaleString("hy-AM") + " ֏";
+    document.getElementById(
+        "activeOrders"
+    ).textContent =
+        active;
+
+
+    document.getElementById(
+        "readyOrders"
+    ).textContent =
+        ready;
+
+
+    document.getElementById(
+        "totalAmount"
+    ).textContent =
+        amount.toLocaleString(
+            "hy-AM"
+        )
+        +
+        " ֏";
+
 }
 
 
-// ================================
-// SECURITY
-// ================================
+
+// ========================================
+// HTML ԱՆՎՏԱՆԳՈՒԹՅՈՒՆ
+// ========================================
 
 function escapeHTML(value) {
 
     return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
+
 }
 
 
-// ================================
-// AUTO REFRESH
-// ================================
 
-setInterval(() => {
+// ========================================
+// ԱՎՏՈՄԱՏ ԹԱՐՄԱՑՈՒՄ
+// ========================================
 
-    renderOrders();
+setInterval(
+    () => {
 
-}, 1000);
+        renderOrders();
+
+    },
+    1000
+);
 
 
-// INITIAL LOAD
+
+// ========================================
+// ՍԿԶԲՆԱԿԱՆ ԲԱՑՈՒՄ
+// ========================================
 
 renderOrders();
