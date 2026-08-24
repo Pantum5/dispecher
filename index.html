@@ -82,6 +82,8 @@
 
                         <th>Ստեղծման ժամ</th>
 
+                        <th>Աղբյուր</th>
+
                         <th>Հասցե</th>
 
                         <th>Գումար</th>
@@ -141,6 +143,53 @@
 
 
         <form id="orderForm">
+
+
+            <!-- ՊԱՏՎԵՐԻ ԱՂԲՅՈՒՐ -->
+
+            <label>
+
+                Պատվերի աղբյուր
+
+                <div class="source-buttons">
+
+                    <button
+                        type="button"
+                        class="source-btn"
+                        data-source="Yandex"
+                        onclick="selectSource('Yandex')"
+                    >
+                        Yandex
+                    </button>
+
+                    <button
+                        type="button"
+                        class="source-btn"
+                        data-source="Murakami"
+                        onclick="selectSource('Murakami')"
+                    >
+                        Murakami
+                    </button>
+
+                    <button
+                        type="button"
+                        class="source-btn"
+                        data-source="YerevanCity"
+                        onclick="selectSource('YerevanCity')"
+                    >
+                        YerevanCity
+                    </button>
+
+                </div>
+
+                <input
+                    type="hidden"
+                    id="orderSource"
+                    required
+                >
+
+            </label>
+
 
 
             <!-- ՊԱՏՎԵՐԻ ՍՏԵՂԾՄԱՆ ԺԱՄ -->
