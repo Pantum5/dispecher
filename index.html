@@ -65,7 +65,7 @@
             <input
                 type="text"
                 id="searchInput"
-                placeholder="🔎 Որոնել պատվեր կամ հասցե..."
+                placeholder="🔎 Որոնել հասցե..."
                 oninput="renderOrders()"
             >
 
@@ -79,8 +79,6 @@
                 <thead>
 
                     <tr>
-
-                        <th>Պատվեր</th>
 
                         <th>Ստեղծման ժամ</th>
 
@@ -144,24 +142,8 @@
 
         <form id="orderForm">
 
-            <input
-                type="hidden"
-                id="orderId"
-            >
 
-
-            <label>
-
-                Պատվերի համար
-
-                <input
-    type="text"
-    id="orderNumber"
-    placeholder="Օր․ 1254"
->
-
-            </label>
-
+            <!-- ՊԱՏՎԵՐԻ ՍՏԵՂԾՄԱՆ ԺԱՄ -->
 
             <label>
 
@@ -176,6 +158,9 @@
             </label>
 
 
+
+            <!-- ՀԱՍՑԵ -->
+
             <label>
 
                 Հասցե
@@ -189,6 +174,9 @@
 
             </label>
 
+
+
+            <!-- ԳՈՒՄԱՐ + ՊԱՏՐԱՍՏՄԱՆ ԺԱՄԱՆԱԿ -->
 
             <div class="two-columns">
 
@@ -224,6 +212,7 @@
             </div>
 
 
+
             <!-- ԿՈՈՐԴԻՆԱՏ -->
 
             <label>
@@ -244,6 +233,9 @@
             </label>
 
 
+
+            <!-- ՆՇՈՒՄ -->
+
             <label>
 
                 Նշում
@@ -255,6 +247,9 @@
 
             </label>
 
+
+
+            <!-- ԳՈՐԾՈՂՈՒԹՅՈՒՆՆԵՐ -->
 
             <div class="modal-actions">
 
