@@ -87,18 +87,20 @@ document
 
             const orderNumber =
                 document
-                    .getElementById(
-                        "orderNumber"
-                    )
+                    .getElementById("orderNumber")
                     .value
                     .trim();
 
 
+            const createdTime =
+                document
+                    .getElementById("createdTime")
+                    .value;
+
+
             const address =
                 document
-                    .getElementById(
-                        "address"
-                    )
+                    .getElementById("address")
                     .value
                     .trim();
 
@@ -106,9 +108,7 @@ document
             const amount =
                 Number(
                     document
-                        .getElementById(
-                            "amount"
-                        )
+                        .getElementById("amount")
                         .value
                 );
 
@@ -116,27 +116,21 @@ document
             const preparationTime =
                 Number(
                     document
-                        .getElementById(
-                            "preparationTime"
-                        )
+                        .getElementById("preparationTime")
                         .value
                 );
 
 
             const coordinates =
                 document
-                    .getElementById(
-                        "coordinates"
-                    )
+                    .getElementById("coordinates")
                     .value
                     .trim();
 
 
             const note =
                 document
-                    .getElementById(
-                        "note"
-                    )
+                    .getElementById("note")
                     .value
                     .trim();
 
@@ -158,6 +152,8 @@ document
                         crypto.randomUUID(),
 
                     orderNumber,
+
+                    createdTime,
 
                     address,
 
@@ -227,6 +223,9 @@ document
 
             order.orderNumber =
                 orderNumber;
+
+            order.createdTime =
+                createdTime;
 
             order.address =
                 address;
@@ -313,10 +312,6 @@ function finishEdit(
             Date.now();
 
 
-        order.createdAt =
-            now;
-
-
         order.readyAt =
             now +
             newTime *
@@ -400,6 +395,14 @@ function editOrder(id) {
         )
         .value =
         order.orderNumber;
+
+
+    document
+        .getElementById(
+            "createdTime"
+        )
+        .value =
+        order.createdTime || "";
 
 
     document
@@ -615,6 +618,71 @@ function formatTime(
 
 
 // ========================================
+// YANDEX MAP
+// ========================================
+
+function getYandexMapLink(
+    coordinates
+) {
+
+    if (!coordinates) {
+        return null;
+    }
+
+
+    const parts =
+        coordinates
+            .split(",")
+            .map(
+                value =>
+                    value.trim()
+            );
+
+
+    if (parts.length !== 2) {
+        return null;
+    }
+
+
+    const latitude =
+        Number(parts[0]);
+
+
+    const longitude =
+        Number(parts[1]);
+
+
+    if (
+        !Number.isFinite(latitude) ||
+        !Number.isFinite(longitude)
+    ) {
+
+        return null;
+
+    }
+
+
+    return (
+        "https://yandex.com/maps/?ll=" +
+        encodeURIComponent(
+            longitude +
+            "," +
+            latitude
+        ) +
+        "&pt=" +
+        encodeURIComponent(
+            longitude +
+            "," +
+            latitude
+        ) +
+        "&z=17"
+    );
+
+}
+
+
+
+// ========================================
 // ՊԱՏՎԵՐՆԵՐԻ ՑՈՒՑԱԴՐՈՒՄ
 // ========================================
 
@@ -660,7 +728,9 @@ function renderOrders() {
 
                     ||
 
-                    order.address
+                    String(
+                        order.address
+                    )
                         .toLowerCase()
                         .includes(search)
 
@@ -740,6 +810,10 @@ function renderOrders() {
 
 
 
+            // ========================================
+            // TIMER
+            // ========================================
+
             let timerHTML;
 
 
@@ -805,16 +879,60 @@ function renderOrders() {
 
 
 
+            // ========================================
+            // MAP
+            // ========================================
+
+            const mapLink =
+                getYandexMapLink(
+                    order.coordinates
+                );
+
+
+            const mapHTML =
+                mapLink
+                    ?
+                    `
+                        <a
+                            href="${mapLink}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="map-link"
+                        >
+                            Map
+                        </a>
+                    `
+                    :
+                    "—";
+
+
+
+            // ========================================
+            // ROW
+            // ========================================
+
             const row =
                 document.createElement(
                     "tr"
                 );
 
 
-
             row.innerHTML = `
 
-                
+                <td>
+                    <strong>
+                        #${escapeHTML(
+                            order.orderNumber
+                        )}
+                    </strong>
+                </td>
+
+
+                <td>
+                    ${escapeHTML(
+                        order.createdTime || "—"
+                    )}
+                </td>
 
 
                 <td>
@@ -846,19 +964,12 @@ function renderOrders() {
 
 
                 <td>
-                    ${
-                        order.coordinates
-                            ?
-                            escapeHTML(
-                                order.coordinates
-                            )
-                            :
-                            "—"
-                    }
+                    ${mapHTML}
                 </td>
 
 
                 <td>
+
                     <span
                         class="
                             status
@@ -867,6 +978,7 @@ function renderOrders() {
                     >
                         ${statusText}
                     </span>
+
                 </td>
 
 
