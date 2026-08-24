@@ -23,6 +23,69 @@ function saveOrders() {
 
 
 // ========================================
+// ԱՂԲՅՈՒՐ ԸՆՏՐԵԼ
+// ========================================
+
+function selectSource(source) {
+
+    document.getElementById(
+        "orderSource"
+    ).value = source;
+
+
+    document
+        .querySelectorAll(".source-btn")
+        .forEach(button => {
+
+            button.classList.remove(
+                "selected"
+            );
+
+        });
+
+
+    const selectedButton =
+        document.querySelector(
+            `.source-btn[data-source="${source}"]`
+        );
+
+
+    if (selectedButton) {
+
+        selectedButton.classList.add(
+            "selected"
+        );
+
+    }
+
+}
+
+
+// ========================================
+// ԱՂԲՅՈՒՐԻ ԿՈՃԱԿՆԵՐԸ ՄԱՔՐԵԼ
+// ========================================
+
+function clearSourceSelection() {
+
+    document.getElementById(
+        "orderSource"
+    ).value = "";
+
+
+    document
+        .querySelectorAll(".source-btn")
+        .forEach(button => {
+
+            button.classList.remove(
+                "selected"
+            );
+
+        });
+
+}
+
+
+// ========================================
 // ՆՈՐ ՊԱՏՎԵՐ
 // ========================================
 
@@ -34,9 +97,44 @@ function openOrderModal() {
         "modalTitle"
     ).textContent = "Նոր պատվեր";
 
+
     document
         .getElementById("orderForm")
         .reset();
+
+
+    clearSourceSelection();
+
+
+    // Ավտոմատ դնել ընթացիկ ժամը
+
+    const now =
+        new Date();
+
+
+    const hours =
+        String(
+            now.getHours()
+        ).padStart(
+            2,
+            "0"
+        );
+
+
+    const minutes =
+        String(
+            now.getMinutes()
+        ).padStart(
+            2,
+            "0"
+        );
+
+
+    document.getElementById(
+        "createdTime"
+    ).value =
+        `${hours}:${minutes}`;
+
 
     document
         .getElementById("orderModal")
@@ -55,6 +153,7 @@ function closeOrderModal() {
         .getElementById("orderModal")
         .classList.remove("show");
 
+
     editingOrderId = null;
 
 }
@@ -71,6 +170,25 @@ document
         function(event) {
 
             event.preventDefault();
+
+
+            const source =
+                document
+                    .getElementById(
+                        "orderSource"
+                    )
+                    .value;
+
+
+            if (!source) {
+
+                alert(
+                    "Խնդրում ենք ընտրել պատվերի աղբյուրը։"
+                );
+
+                return;
+
+            }
 
 
             const createdTime =
@@ -130,6 +248,8 @@ document
 
                     id:
                         crypto.randomUUID(),
+
+                    source,
 
                     createdTime,
 
@@ -201,6 +321,9 @@ document
             // ========================================
             // ԹԱՐՄԱՑՆԵԼ ՏՎՅԱԼՆԵՐԸ
             // ========================================
+
+            order.source =
+                source;
 
             order.createdTime =
                 createdTime;
@@ -357,6 +480,21 @@ function editOrder(id) {
         )
         .textContent =
         "Փոփոխել պատվերը";
+
+
+    // ԱՂԲՅՈՒՐ
+
+    if (order.source) {
+
+        selectSource(
+            order.source
+        );
+
+    } else {
+
+        clearSourceSelection();
+
+    }
 
 
     document
@@ -626,35 +764,84 @@ function getYandexMapLink(
 
     return (
         "https://yandex.com/maps/"
-
         +
-
         "?ll="
-
         +
-
         encodeURIComponent(
             longitude +
             "," +
             latitude
         )
-
         +
-
         "&pt="
-
         +
-
         encodeURIComponent(
             longitude +
             "," +
             latitude
         )
-
         +
-
         "&z=17"
     );
+
+}
+
+
+// ========================================
+// ԱՂԲՅՈՒՐԻ ՑՈՒՑԱԴՐՈՒՄ
+// ========================================
+
+function getSourceHTML(
+    source
+) {
+
+    if (!source) {
+
+        return "—";
+
+    }
+
+
+    let sourceClass =
+        "";
+
+
+    if (
+        source ===
+        "Yandex"
+    ) {
+
+        sourceClass =
+            "yandex";
+
+    }
+
+    else if (
+        source ===
+        "Murakami"
+    ) {
+
+        sourceClass =
+            "murakami";
+
+    }
+
+    else if (
+        source ===
+        "YerevanCity"
+    ) {
+
+        sourceClass =
+            "yerevancity";
+
+    }
+
+
+    return `
+        <span class="source-badge ${sourceClass}">
+            ${escapeHTML(source)}
+        </span>
+    `;
 
 }
 
@@ -869,6 +1056,16 @@ function renderOrders() {
 
 
             // ========================================
+            // ԱՂԲՅՈՒՐ
+            // ========================================
+
+            const sourceHTML =
+                getSourceHTML(
+                    order.source
+                );
+
+
+            // ========================================
             // ՍՏԵՂԾԵԼ ROW
             // ========================================
 
@@ -884,6 +1081,11 @@ function renderOrders() {
                     ${escapeHTML(
                         order.createdTime || "—"
                     )}
+                </td>
+
+
+                <td>
+                    ${sourceHTML}
                 </td>
 
 
