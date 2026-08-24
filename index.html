@@ -15,204 +15,17 @@
 
     <div>
         <h1>📦 Պատվերների կառավարում</h1>
-        <p>Դիսպետչերի աշխատանքային համակարգ</p>
+        <p>Օպերատորի անձնական համակարգ</p>
     </div>
+
+    <button class="add-btn" onclick="openOrderModal()">
+        ＋ Նոր պատվեր
+    </button>
 
 </header>
 
 
 <main class="container">
-
-
-    <!-- =========================
-         ՏԵՔՍՏԻՑ ՊԱՏՎԵՐ ՍՏԵՂԾԵԼ
-    ========================== -->
-
-    <section class="parser-section">
-
-        <div class="parser-header">
-
-            <div>
-                <h2>📋 Պատվեր ստեղծել տեքստից</h2>
-
-                <p>
-                    Ամբողջ պատվերի էջը Copy → Paste արա այստեղ։
-                    Ծրագիրը ավտոմատ կճանաչի աղբյուրը և անհրաժեշտ տվյալները։
-                </p>
-            </div>
-
-        </div>
-
-
-        <textarea
-            id="orderText"
-            class="order-text"
-            placeholder="Այստեղ տեղադրիր Yandex, Murakami կամ Yerevan City պատվերի ամբողջ տեքստը..."
-        ></textarea>
-
-
-        <div class="parser-actions">
-
-            <button
-                class="parse-btn"
-                onclick="parseOrderText()"
-            >
-                🔍 Վերլուծել պատվերը
-            </button>
-
-            <button
-                class="clear-btn"
-                onclick="clearParser()"
-            >
-                🗑 Մաքրել
-            </button>
-
-        </div>
-
-
-        <!-- ՎԵՐԼՈՒԾՎԱԾ ՏՎՅԱԼՆԵՐ -->
-
-        <div
-            id="parsedOrder"
-            class="parsed-order"
-        >
-
-            <div class="parsed-title">
-                📦 Ճանաչված պատվեր
-            </div>
-
-
-            <div class="parsed-grid">
-
-
-                <div class="parsed-item">
-
-                    <span>Աղբյուր</span>
-
-                    <strong id="parsedSource">
-                        —
-                    </strong>
-
-                </div>
-
-
-                <div class="parsed-item">
-
-                    <span>Ստեղծման ժամ</span>
-
-                    <strong id="parsedCreatedTime">
-                        —
-                    </strong>
-
-                </div>
-
-
-                <div class="parsed-item">
-
-                    <span>Ընդհանուր գումար</span>
-
-                    <strong id="parsedAmount">
-                        —
-                    </strong>
-
-                </div>
-
-
-                <div class="parsed-item full">
-
-                    <span>Առաքման հասցե</span>
-
-                    <strong id="parsedAddress">
-                        —
-                    </strong>
-
-                </div>
-
-
-                <div class="parsed-item">
-
-                    <span>Կոորդինատներ</span>
-
-                    <strong id="parsedCoordinates">
-                        —
-                    </strong>
-
-                </div>
-
-            </div>
-
-
-            <!-- ՊԱՏՐԱՍՏՄԱՆ ԺԱՄԱՆԱԿ -->
-
-            <div class="preparation-box">
-
-                <h3>
-                    ⏱ Պատրաստման ժամանակ
-                </h3>
-
-                <p>
-                    Ընտրիր պատվերի պատրաստման ժամանակը։
-                </p>
-
-
-                <div class="time-buttons">
-
-                    <button
-                        onclick="selectPreparationTime(10)"
-                        data-time="10"
-                    >
-                        10 րոպե
-                    </button>
-
-                    <button
-                        onclick="selectPreparationTime(20)"
-                        data-time="20"
-                    >
-                        20 րոպե
-                    </button>
-
-                    <button
-                        onclick="selectPreparationTime(30)"
-                        data-time="30"
-                    >
-                        30 րոպե
-                    </button>
-
-                    <button
-                        onclick="selectPreparationTime(40)"
-                        data-time="40"
-                    >
-                        40 րոպե
-                    </button>
-
-                    <button
-                        onclick="selectPreparationTime(50)"
-                        data-time="50"
-                    >
-                        50 րոպե
-                    </button>
-
-                </div>
-
-            </div>
-
-
-            <button
-                class="create-order-btn"
-                onclick="createParsedOrder()"
-            >
-                ➕ Ստեղծել պատվեր
-            </button>
-
-        </div>
-
-    </section>
-
-
-
-    <!-- =========================
-         ՊԱՏՎԵՐՆԵՐ
-    ========================== -->
 
     <section class="orders-section">
 
@@ -239,37 +52,25 @@
                     <tr>
 
                         <th>Աղբյուր</th>
-
                         <th>Ստեղծման ժամ</th>
-
                         <th>Հասցե</th>
-
                         <th>Գումար</th>
-
-                        <th>Պատրաստում</th>
-
+                        <th>Պատրաստման ժամանակ</th>
                         <th>Մնացած ժամանակ</th>
-
                         <th>Map</th>
-
                         <th>Կարգավիճակ</th>
-
                         <th>Գործողություններ</th>
 
                     </tr>
 
                 </thead>
 
-
                 <tbody id="ordersTable"></tbody>
 
             </table>
 
 
-            <div
-                id="emptyState"
-                class="empty-state"
-            >
+            <div id="emptyState" class="empty-state">
                 📦 Պատվերներ դեռ չկան
             </div>
 
@@ -278,6 +79,363 @@
     </section>
 
 </main>
+
+
+
+<!-- =========================
+     ՆՈՐ / ՓՈՓՈԽԵԼ ՊԱՏՎԵՐ
+========================= -->
+
+<div id="orderModal" class="modal">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <h2 id="modalTitle">Նոր պատվեր</h2>
+
+            <button
+                onclick="closeOrderModal()"
+                class="close-btn"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <!-- ՄԵԹՈԴԻ ԸՆՏՐՈՒԹՅՈՒՆ -->
+
+        <div class="input-methods">
+
+            <button
+                type="button"
+                id="textModeBtn"
+                class="method-btn active"
+                onclick="setInputMode('text')"
+            >
+                📋 Տեքստով
+            </button>
+
+            <button
+                type="button"
+                id="manualModeBtn"
+                class="method-btn"
+                onclick="setInputMode('manual')"
+            >
+                ✋ Ձեռքով
+            </button>
+
+        </div>
+
+
+
+        <!-- =========================
+             TEXT MODE
+        ========================= -->
+
+        <div id="textMode">
+
+            <label>
+
+                Պատվերի ամբողջական տեքստը
+
+                <textarea
+                    id="orderText"
+                    class="order-text"
+                    placeholder="Այստեղ ամբողջությամբ paste արա Yandex-ի կամ Murakami-ի պատվերի տեքստը..."
+                ></textarea>
+
+            </label>
+
+
+            <button
+                type="button"
+                class="parse-btn"
+                onclick="parseOrderText()"
+            >
+                🔍 Ճանաչել պատվերը
+            </button>
+
+
+            <!-- ՃԱՆԱՉՎԱԾ ՏՎՅԱԼՆԵՐ -->
+
+            <div
+                id="recognizedData"
+                class="recognized-data"
+                style="display:none;"
+            >
+
+                <h3>📦 Ճանաչված պատվեր</h3>
+
+
+                <div class="recognized-row">
+
+                    <span>Աղբյուր</span>
+                    <strong id="recognizedSource">—</strong>
+
+                </div>
+
+
+                <div class="recognized-row">
+
+                    <span>Ստեղծման ժամ</span>
+                    <strong id="recognizedCreatedTime">—</strong>
+
+                </div>
+
+
+                <div class="recognized-row">
+
+                    <span>Ընդհանուր գումար</span>
+                    <strong id="recognizedAmount">—</strong>
+
+                </div>
+
+
+                <div class="recognized-row">
+
+                    <span>Առաքման հասցե</span>
+                    <strong id="recognizedAddress">—</strong>
+
+                </div>
+
+
+                <div class="recognized-row">
+
+                    <span>Կոորդինատներ</span>
+                    <strong id="recognizedCoordinates">—</strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =========================
+             MANUAL MODE
+        ========================= -->
+
+        <form id="manualForm" style="display:none;">
+
+            <label>
+
+                Աղբյուր
+
+                <select id="manualSource">
+
+                    <option value="Manual">
+                        Ձեռքով
+                    </option>
+
+                    <option value="Yandex">
+                        Yandex
+                    </option>
+
+                    <option value="Murakami">
+                        Murakami
+                    </option>
+
+                </select>
+
+            </label>
+
+
+            <label>
+
+                Ստեղծման ժամ
+
+                <input
+                    type="time"
+                    id="createdTime"
+                >
+
+            </label>
+
+
+            <label>
+
+                Առաքման հասցե
+
+                <input
+                    type="text"
+                    id="address"
+                    placeholder="Օր․ Կոմիտաս 15"
+                >
+
+            </label>
+
+
+            <label>
+
+                Ընդհանուր գումար
+
+                <input
+                    type="number"
+                    id="amount"
+                    min="0"
+                    placeholder="8500"
+                >
+
+            </label>
+
+
+            <label>
+
+                📍 Կոորդինատներ
+
+                <input
+                    type="text"
+                    id="coordinates"
+                    placeholder="40.221970, 44.550680"
+                >
+
+                <small>
+                    Եթե կոորդինատ չկա, կարող ես դատարկ թողնել։
+                </small>
+
+            </label>
+
+        </form>
+
+
+
+        <!-- =========================
+             PREPARATION TIME
+        ========================= -->
+
+        <div class="preparation-section">
+
+            <h3>⏱ Պատրաստման ժամանակ</h3>
+
+            <p>
+                Ընտրիր պատվերի պատրաստման ժամանակը։
+            </p>
+
+
+            <div class="time-buttons">
+
+                <button
+                    type="button"
+                    class="time-btn"
+                    data-time="10"
+                    onclick="selectPreparationTime(10)"
+                >
+                    10 րոպե
+                </button>
+
+                <button
+                    type="button"
+                    class="time-btn"
+                    data-time="20"
+                    onclick="selectPreparationTime(20)"
+                >
+                    20 րոպե
+                </button>
+
+                <button
+                    type="button"
+                    class="time-btn"
+                    data-time="30"
+                    onclick="selectPreparationTime(30)"
+                >
+                    30 րոպե
+                </button>
+
+                <button
+                    type="button"
+                    class="time-btn"
+                    data-time="40"
+                    onclick="selectPreparationTime(40)"
+                >
+                    40 րոպե
+                </button>
+
+                <button
+                    type="button"
+                    class="time-btn"
+                    data-time="50"
+                    onclick="selectPreparationTime(50)"
+                >
+                    50 րոպե
+                </button>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ACTIONS -->
+
+        <div class="modal-actions">
+
+            <button
+                type="button"
+                class="cancel-btn"
+                onclick="closeOrderModal()"
+            >
+                Չեղարկել
+            </button>
+
+
+            <button
+                type="button"
+                class="save-btn"
+                onclick="createOrder()"
+            >
+                💾 Ստեղծել պատվեր
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =========================
+     TIMER CONFIRM
+========================= -->
+
+<div id="confirmModal" class="modal">
+
+    <div class="confirm-content">
+
+        <h2>⚠️ Փոխել ժամաչափը</h2>
+
+        <p>
+            Պատրաստման ժամանակը փոխվել է։
+            Ցանկանո՞ւմ եք ժամաչափը սկսել նորից։
+        </p>
+
+
+        <div class="modal-actions">
+
+            <button
+                class="cancel-btn"
+                onclick="finishEdit(false)"
+            >
+                Ոչ
+            </button>
+
+
+            <button
+                class="save-btn"
+                onclick="finishEdit(true)"
+            >
+                Այո, սկսել նորից
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
 
 
 <script src="script.js"></script>
