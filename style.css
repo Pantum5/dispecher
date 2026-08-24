@@ -16,9 +16,9 @@ body {
 }
 
 
-/* =========================
+/* ========================================
    HEADER
-========================= */
+======================================== */
 
 .topbar {
 
@@ -33,7 +33,6 @@ body {
     justify-content: space-between;
 
     align-items: center;
-
 }
 
 
@@ -42,7 +41,6 @@ body {
     margin: 0;
 
     font-size: 24px;
-
 }
 
 
@@ -52,6 +50,7 @@ body {
 
     color: #9ca3af;
 
+    font-size: 14px;
 }
 
 
@@ -70,91 +69,32 @@ body {
     font-size: 15px;
 
     cursor: pointer;
-
 }
 
 
 .add-btn:hover {
 
     background: #1d4ed8;
-
 }
 
 
-
-/* =========================
+/* ========================================
    MAIN
-========================= */
+======================================== */
 
 .container {
 
-    max-width: 1600px;
+    max-width: 1700px;
 
     margin: auto;
 
     padding: 25px;
-
 }
 
 
-
-/* =========================
-   STATS
-========================= */
-
-.stats {
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(4, 1fr);
-
-    gap: 15px;
-
-    margin-bottom: 25px;
-
-}
-
-
-.stat-card {
-
-    background: white;
-
-    padding: 20px;
-
-    border-radius: 12px;
-
-    box-shadow:
-        0 2px 8px
-        rgba(0, 0, 0, .05);
-
-}
-
-
-.stat-card span {
-
-    display: block;
-
-    color: #6b7280;
-
-    font-size: 14px;
-
-    margin-bottom: 8px;
-
-}
-
-
-.stat-card strong {
-
-    font-size: 25px;
-
-}
-
-
-
-/* =========================
+/* ========================================
    ORDERS
-========================= */
+======================================== */
 
 .orders-section {
 
@@ -167,7 +107,6 @@ body {
     box-shadow:
         0 2px 8px
         rgba(0, 0, 0, .05);
-
 }
 
 
@@ -180,28 +119,24 @@ body {
     align-items: center;
 
     margin-bottom: 20px;
-
 }
 
 
 .section-header h2 {
 
     margin: 0;
-
 }
 
 
 .section-header input {
 
-    width: 300px;
-
+    width: 320px;
 }
 
 
-
-/* =========================
+/* ========================================
    INPUTS
-========================= */
+======================================== */
 
 input,
 textarea {
@@ -220,6 +155,7 @@ textarea {
 
     outline: none;
 
+    font-family: inherit;
 }
 
 
@@ -227,7 +163,6 @@ input:focus,
 textarea:focus {
 
     border-color: #2563eb;
-
 }
 
 
@@ -236,7 +171,25 @@ textarea {
     min-height: 80px;
 
     resize: vertical;
+}
 
+
+label {
+
+    display: block;
+
+    margin-bottom: 15px;
+
+    font-size: 13px;
+
+    font-weight: bold;
+}
+
+
+label input,
+label textarea {
+
+    margin-top: 6px;
 }
 
 
@@ -249,127 +202,16 @@ small {
     color: #6b7280;
 
     font-weight: normal;
-
 }
 
 
-
-/* =========================
-   SOURCE BUTTONS
-========================= */
-
-.source-buttons {
-
-    display: flex;
-
-    gap: 8px;
-
-    margin-top: 7px;
-
-}
-
-
-.source-btn {
-
-    flex: 1;
-
-    border:
-        1px solid
-        #d1d5db;
-
-    background: #f9fafb;
-
-    color: #374151;
-
-    padding: 11px 10px;
-
-    border-radius: 7px;
-
-    cursor: pointer;
-
-    font-size: 13px;
-
-    font-weight: bold;
-
-}
-
-
-.source-btn:hover {
-
-    border-color: #2563eb;
-
-    background: #eff6ff;
-
-}
-
-
-.source-btn.selected {
-
-    background: #2563eb;
-
-    border-color: #2563eb;
-
-    color: white;
-
-}
-
-
-
-/* =========================
-   SOURCE BADGE
-========================= */
-
-.source-badge {
-
-    display: inline-block;
-
-    padding: 6px 9px;
-
-    border-radius: 7px;
-
-    font-size: 12px;
-
-    font-weight: bold;
-
-}
-
-
-.source-badge.yandex {
-
-    background: #fee2e2;
-
-    color: #991b1b;
-
-}
-
-
-.source-badge.murakami {
-
-    background: #dbeafe;
-
-    color: #1d4ed8;
-
-}
-
-
-.source-badge.yerevancity {
-
-    background: #dcfce7;
-
-    color: #166534;
-
-}
-
-
-
-/* =========================
+/* ========================================
    TABLE
-========================= */
+======================================== */
 
 .table-wrapper {
 
     overflow-x: auto;
-
 }
 
 
@@ -379,13 +221,14 @@ table {
 
     border-collapse: collapse;
 
+    min-width: 1100px;
 }
 
 
 th,
 td {
 
-    padding: 14px 12px;
+    padding: 13px 12px;
 
     border-bottom:
         1px solid
@@ -393,8 +236,9 @@ td {
 
     text-align: left;
 
-    white-space: nowrap;
+    vertical-align: middle;
 
+    white-space: nowrap;
 }
 
 
@@ -405,37 +249,64 @@ th {
     color: #6b7280;
 
     font-size: 13px;
-
 }
 
+
+td {
+
+    font-size: 14px;
+}
+
+
+/* ========================================
+   SOURCE
+======================================== */
+
+.source-badge {
+
+    display: inline-block;
+
+    padding: 5px 9px;
+
+    border-radius: 6px;
+
+    background: #eef2ff;
+
+    color: #3730a3;
+
+    font-weight: bold;
+
+    font-size: 12px;
+}
+
+
+/* ========================================
+   TIMER
+======================================== */
 
 .timer {
 
     font-weight: bold;
 
     font-size: 16px;
-
 }
 
 
 .timer.warning {
 
     color: #d97706;
-
 }
 
 
 .timer.danger {
 
     color: #dc2626;
-
 }
 
 
-
-/* =========================
+/* ========================================
    MAP
-========================= */
+======================================== */
 
 .map-link {
 
@@ -454,21 +325,18 @@ th {
     font-size: 13px;
 
     font-weight: bold;
-
 }
 
 
 .map-link:hover {
 
     background: #bfdbfe;
-
 }
 
 
-
-/* =========================
+/* ========================================
    STATUS
-========================= */
+======================================== */
 
 .status {
 
@@ -481,7 +349,6 @@ th {
     font-size: 12px;
 
     font-weight: bold;
-
 }
 
 
@@ -490,7 +357,6 @@ th {
     background: #fef3c7;
 
     color: #92400e;
-
 }
 
 
@@ -499,7 +365,6 @@ th {
     background: #dcfce7;
 
     color: #166534;
-
 }
 
 
@@ -508,23 +373,18 @@ th {
     background: #e5e7eb;
 
     color: #374151;
-
 }
 
 
-
-/* =========================
+/* ========================================
    ACTIONS
-========================= */
+======================================== */
 
 .actions {
 
     display: flex;
 
-    align-items: center;
-
-    gap: 5px;
-
+    gap: 6px;
 }
 
 
@@ -539,14 +399,6 @@ th {
     cursor: pointer;
 
     font-size: 13px;
-
-}
-
-
-.action-btn:hover {
-
-    opacity: .8;
-
 }
 
 
@@ -555,20 +407,12 @@ th {
     background: #f3f4f6;
 
     color: #374151;
-
-    font-size: 15px;
-
-    font-weight: bold;
-
 }
 
 
-.move-btn:disabled {
+.move-btn:hover {
 
-    opacity: .35;
-
-    cursor: not-allowed;
-
+    background: #e5e7eb;
 }
 
 
@@ -577,7 +421,6 @@ th {
     background: #dbeafe;
 
     color: #1d4ed8;
-
 }
 
 
@@ -586,7 +429,6 @@ th {
     background: #dcfce7;
 
     color: #166534;
-
 }
 
 
@@ -595,14 +437,12 @@ th {
     background: #fee2e2;
 
     color: #991b1b;
-
 }
 
 
-
-/* =========================
+/* ========================================
    EMPTY
-========================= */
+======================================== */
 
 .empty-state {
 
@@ -611,14 +451,12 @@ th {
     padding: 50px;
 
     color: #9ca3af;
-
 }
 
 
-
-/* =========================
+/* ========================================
    MODAL
-========================= */
+======================================== */
 
 .modal {
 
@@ -638,14 +476,12 @@ th {
     padding: 20px;
 
     z-index: 1000;
-
 }
 
 
 .modal.show {
 
     display: flex;
-
 }
 
 
@@ -656,7 +492,11 @@ th {
 
     width: 100%;
 
-    max-width: 600px;
+    max-width: 650px;
+
+    max-height: 90vh;
+
+    overflow-y: auto;
 
     border-radius: 12px;
 
@@ -665,7 +505,6 @@ th {
     box-shadow:
         0 10px 40px
         rgba(0, 0, 0, .2);
-
 }
 
 
@@ -678,14 +517,12 @@ th {
     align-items: center;
 
     margin-bottom: 20px;
-
 }
 
 
 .modal-header h2 {
 
     margin: 0;
-
 }
 
 
@@ -700,42 +537,161 @@ th {
     cursor: pointer;
 
     color: #6b7280;
-
 }
 
 
-label {
+/* ========================================
+   RAW TEXT
+======================================== */
 
-    display: block;
+.raw-text {
+
+    min-height: 180px;
+
+    font-family:
+        Arial,
+        sans-serif;
+
+    line-height: 1.5;
+}
+
+
+.parse-btn {
+
+    width: 100%;
+
+    border: none;
+
+    background: #111827;
+
+    color: white;
+
+    padding: 12px;
+
+    border-radius: 7px;
+
+    cursor: pointer;
+
+    font-size: 14px;
+
+    font-weight: bold;
 
     margin-bottom: 15px;
+}
+
+
+.parse-btn:hover {
+
+    background: #1f2937;
+}
+
+
+.parse-message {
+
+    min-height: 20px;
+
+    margin-bottom: 10px;
 
     font-size: 13px;
 
     font-weight: bold;
-
 }
 
 
-label input,
-label textarea {
+.parse-message.success {
 
-    margin-top: 6px;
-
+    color: #166534;
 }
 
 
-.two-columns {
+.parse-message.error {
+
+    color: #dc2626;
+}
+
+
+/* ========================================
+   PREPARATION TIME
+======================================== */
+
+.preparation-box {
+
+    margin-top: 10px;
+
+    padding: 15px;
+
+    border:
+        1px solid
+        #e5e7eb;
+
+    border-radius: 8px;
+
+    background: #f9fafb;
+}
+
+
+.preparation-title {
+
+    font-size: 14px;
+
+    font-weight: bold;
+
+    margin-bottom: 12px;
+}
+
+
+.time-buttons {
 
     display: grid;
 
     grid-template-columns:
-        1fr 1fr;
+        repeat(5, 1fr);
 
-    gap: 15px;
-
+    gap: 8px;
 }
 
+
+.time-btn {
+
+    border:
+        1px solid
+        #d1d5db;
+
+    background: white;
+
+    padding: 10px 5px;
+
+    border-radius: 7px;
+
+    cursor: pointer;
+
+    font-size: 13px;
+
+    font-weight: bold;
+}
+
+
+.time-btn:hover {
+
+    border-color: #2563eb;
+
+    color: #2563eb;
+}
+
+
+.time-btn.selected {
+
+    background: #2563eb;
+
+    color: white;
+
+    border-color: #2563eb;
+}
+
+
+/* ========================================
+   MODAL ACTIONS
+======================================== */
 
 .modal-actions {
 
@@ -746,7 +702,6 @@ label textarea {
     gap: 10px;
 
     margin-top: 20px;
-
 }
 
 
@@ -760,7 +715,6 @@ label textarea {
     border-radius: 7px;
 
     cursor: pointer;
-
 }
 
 
@@ -769,7 +723,6 @@ label textarea {
     background: #e5e7eb;
 
     color: #374151;
-
 }
 
 
@@ -778,14 +731,12 @@ label textarea {
     background: #2563eb;
 
     color: white;
-
 }
 
 
-
-/* =========================
+/* ========================================
    MOBILE
-========================= */
+======================================== */
 
 @media (max-width: 800px) {
 
@@ -796,15 +747,6 @@ label textarea {
         align-items: stretch;
 
         gap: 15px;
-
-    }
-
-
-    .stats {
-
-        grid-template-columns:
-            1fr 1fr;
-
     }
 
 
@@ -815,16 +757,20 @@ label textarea {
         align-items: stretch;
 
         gap: 15px;
-
     }
 
 
     .section-header input {
 
         width: 100%;
-
     }
 
+
+    .time-buttons {
+
+        grid-template-columns:
+            repeat(3, 1fr);
+    }
 }
 
 
@@ -832,38 +778,32 @@ label textarea {
 
     .container {
 
-        padding: 12px;
-
-    }
-
-
-    .stats {
-
-        grid-template-columns:
-            1fr;
-
-    }
-
-
-    .two-columns {
-
-        grid-template-columns:
-            1fr;
-
-    }
-
-
-    .source-buttons {
-
-        flex-direction: column;
-
+        padding: 10px;
     }
 
 
     .topbar {
 
         padding: 15px;
-
     }
 
+
+    .topbar h1 {
+
+        font-size: 20px;
+    }
+
+
+    .modal-content,
+    .confirm-content {
+
+        padding: 18px;
+    }
+
+
+    .time-buttons {
+
+        grid-template-columns:
+            1fr 1fr;
+    }
 }
