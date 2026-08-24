@@ -326,6 +326,39 @@ th {
 
 
 /* =========================
+   MAP
+========================= */
+
+.map-link {
+
+    display: inline-block;
+
+    text-decoration: none;
+
+    background: #dbeafe;
+
+    color: #1d4ed8;
+
+    padding: 6px 10px;
+
+    border-radius: 6px;
+
+    font-size: 13px;
+
+    font-weight: bold;
+
+}
+
+
+.map-link:hover {
+
+    background: #bfdbfe;
+
+}
+
+
+
+/* =========================
    STATUS
 ========================= */
 
